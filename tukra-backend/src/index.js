@@ -5,39 +5,42 @@ import { initCronJobs } from './jobs/cron.js';
 
 const PORT = config.PORT || 3000;
 
-const server = app.listen(PORT, () => {
-  console.log(`🚀 Tukra Backend API listening on port ${PORT} [${config.NODE_ENV}]`);
-  console.log(`📍 Health check available at: http://localhost:${PORT}/health`);
+let server;
 
-  // Initialize background cron jobs (skip in test environment)
-  if (config.NODE_ENV !== 'test') {
+// Spin up HTTP listener and cron jobs only when running as a standalone server (not on Vercel Serverless)
+if (!process.env.VERCEL && config.NODE_ENV !== 'test') {
+  server = app.listen(PORT, () => {
+    console.log(`🚀 Tukra Backend API listening on port ${PORT} [${config.NODE_ENV}]`);
+    console.log(`📍 Health check available at: http://localhost:${PORT}/health`);
+
+    // Initialize background cron jobs
     initCronJobs();
-  }
-});
-
-// Graceful shutdown
-function gracefulShutdown(signal) {
-  console.log(`\n🛑 Received ${signal}. Starting graceful shutdown...`);
-  server.close(async () => {
-    console.log('🔌 HTTP server closed.');
-    try {
-      await pool.end();
-      console.log('📦 Database pool closed.');
-      process.exit(0);
-    } catch (err) {
-      console.error('Error closing database pool:', err);
-      process.exit(1);
-    }
   });
 
-  setTimeout(() => {
-    console.error('⚠️  Forced shutdown due to timeout');
-    process.exit(1);
-  }, 10000);
-}
+  // Graceful shutdown
+  function gracefulShutdown(signal) {
+    console.log(`\n🛑 Received ${signal}. Starting graceful shutdown...`);
+    server.close(async () => {
+      console.log('🔌 HTTP server closed.');
+      try {
+        await pool.end();
+        console.log('📦 Database pool closed.');
+        process.exit(0);
+      } catch (err) {
+        console.error('Error closing database pool:', err);
+        process.exit(1);
+      }
+    });
 
-process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+    setTimeout(() => {
+      console.error('⚠️  Forced shutdown due to timeout');
+      process.exit(1);
+    }, 10000);
+  }
+
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+}
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('💥 Unhandled Rejection at:', promise, 'reason:', reason);
@@ -47,3 +50,5 @@ process.on('uncaughtException', (error) => {
   console.error('💥 Uncaught Exception thrown:', error);
   process.exit(1);
 });
+
+export default app;
