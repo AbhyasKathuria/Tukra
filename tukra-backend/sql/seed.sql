@@ -55,6 +55,38 @@ VALUES
   -- Admin
   ('u8888888-8888-8888-8888-888888888888', 'c1111111-1111-1111-1111-111111111111',
    'Ms. Kaur', 'admin@presidency.ac.in', '+919876543217',
+   '$2b$10$/jFET/R8NwkcGI.2h3crieUhjPsAALilSARmznQqDvoanB7lwmKNy', 'ADMIN', 'Dean Student Affairs', 'ANY'),
+
+  -- Student Aliases
+  ('u1111111-1111-1111-1111-111111111112', 'c1111111-1111-1111-1111-111111111111',
+   'Aarav Sharma', 'aarav@presidency.edu.in', '+919876543210',
+   '$2b$10$/jFET/R8NwkcGI.2h3crieUhjPsAALilSARmznQqDvoanB7lwmKNy', 'STUDENT', 'Nilgiri Block A', 'ANY'),
+  ('u1111111-1111-1111-1111-111111111113', 'c1111111-1111-1111-1111-111111111111',
+   'Demo Student', 'student@tukra.local', '+919876543210',
+   '$2b$10$/jFET/R8NwkcGI.2h3crieUhjPsAALilSARmznQqDvoanB7lwmKNy', 'STUDENT', 'Nilgiri Block A', 'ANY'),
+
+  -- Vendor Aliases
+  ('u4444444-4444-4444-4444-444444444445', 'c1111111-1111-1111-1111-111111111111',
+   'Ramesh Bhaiya', 'southtiffin@vendor.tukra', '+919876543213',
+   '$2b$10$/jFET/R8NwkcGI.2h3crieUhjPsAALilSARmznQqDvoanB7lwmKNy', 'VENDOR', NULL, 'ANY'),
+  ('u4444444-4444-4444-4444-444444444446', 'c1111111-1111-1111-1111-111111111111',
+   'Ramesh Bhaiya', 'vendor@tukra.local', '+919876543213',
+   '$2b$10$/jFET/R8NwkcGI.2h3crieUhjPsAALilSARmznQqDvoanB7lwmKNy', 'VENDOR', NULL, 'ANY'),
+
+  -- Mess Aliases
+  ('u7777777-7777-7777-7777-777777777778', 'c1111111-1111-1111-1111-111111111111',
+   'Rajesh Nair', 'mess@presidency.edu.in', '+919876543216',
+   '$2b$10$/jFET/R8NwkcGI.2h3crieUhjPsAALilSARmznQqDvoanB7lwmKNy', 'MESS_OPERATOR', 'Central Mess Office', 'ANY'),
+  ('u7777777-7777-7777-7777-777777777779', 'c1111111-1111-1111-1111-111111111111',
+   'Rajesh Nair', 'mess@tukra.local', '+919876543216',
+   '$2b$10$/jFET/R8NwkcGI.2h3crieUhjPsAALilSARmznQqDvoanB7lwmKNy', 'MESS_OPERATOR', 'Central Mess Office', 'ANY'),
+
+  -- Admin Aliases
+  ('u8888888-8888-8888-8888-888888888889', 'c1111111-1111-1111-1111-111111111111',
+   'Ms. Kaur', 'admin@presidency.edu.in', '+919876543217',
+   '$2b$10$/jFET/R8NwkcGI.2h3crieUhjPsAALilSARmznQqDvoanB7lwmKNy', 'ADMIN', 'Dean Student Affairs', 'ANY'),
+  ('u8888888-8888-8888-8888-888888888890', 'c1111111-1111-1111-1111-111111111111',
+   'Ms. Kaur', 'admin@tukra.local', '+919876543217',
    '$2b$10$/jFET/R8NwkcGI.2h3crieUhjPsAALilSARmznQqDvoanB7lwmKNy', 'ADMIN', 'Dean Student Affairs', 'ANY')
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
@@ -65,6 +97,8 @@ ON CONFLICT (id) DO UPDATE SET
 INSERT INTO wallets (user_id, balance_paise)
 VALUES
   ('u1111111-1111-1111-1111-111111111111', 50000), -- Aarav: ₹500
+  ('u1111111-1111-1111-1111-111111111112', 50000),
+  ('u1111111-1111-1111-1111-111111111113', 50000),
   ('u2222222-2222-2222-2222-222222222222', 0),     -- Priya: ₹0
   ('u3333333-3333-3333-3333-333333333333', 100000) -- Dr. Meena: ₹1,000
 ON CONFLICT (user_id) DO UPDATE SET balance_paise = EXCLUDED.balance_paise;

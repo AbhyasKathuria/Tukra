@@ -26,11 +26,13 @@ import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -61,6 +63,7 @@ import com.xsparks.tukra.core.designsystem.PinkDeep
 import com.xsparks.tukra.core.designsystem.SoraFamily
 import com.xsparks.tukra.core.designsystem.TukraPink
 import com.xsparks.tukra.core.designsystem.components.PrimaryButton
+import com.xsparks.tukra.core.network.NetworkClient
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -75,6 +78,10 @@ fun LoginScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+
+    var showServerDialog by remember { mutableStateOf(false) }
+    var currentBaseUrl by remember { mutableStateOf(NetworkClient.getEffectiveBaseUrl()) }
+    var serverUrlInput by remember { mutableStateOf(currentBaseUrl) }
 
     LaunchedEffect(uiState.successRole) {
         val role = uiState.successRole
@@ -258,42 +265,124 @@ fun LoginScreen(
             )
         }
 
-        // Debug Quick-Fill Demo Chips (Debug only)
-        if (BuildConfig.DEBUG) {
-            Spacer(modifier = Modifier.height(40.dp))
-            Text(
-                text = "DEMO ACCOUNTS (DEBUG ONLY)",
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Bold,
-                color = InkSoft
-            )
-            Spacer(modifier = Modifier.height(10.dp))
+        // Demo Quick-Fill Demo Chips
+        Spacer(modifier = Modifier.height(36.dp))
+        Text(
+            text = "DEMO ACCOUNTS (ONE-TAP FILL)",
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Bold,
+            color = InkSoft
+        )
+        Spacer(modifier = Modifier.height(10.dp))
 
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                DemoFillChip("Student") {
-                    email = "aarav@presidency.edu.in"
-                    password = "Student@123"
-                    viewModel.clearError()
-                }
-                DemoFillChip("Vendor") {
-                    email = "southtiffin@vendor.tukra"
-                    password = "Vendor@123"
-                    viewModel.clearError()
-                }
-                DemoFillChip("Mess Operator") {
-                    email = "mess@presidency.edu.in"
-                    password = "Mess@123"
-                    viewModel.clearError()
-                }
-                DemoFillChip("Admin") {
-                    email = "admin@presidency.edu.in"
-                    password = "Admin@123"
-                    viewModel.clearError()
-                }
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            DemoFillChip("Student") {
+                email = "aarav@presidency.ac.in"
+                password = "demo1234"
+                viewModel.clearError()
             }
+            DemoFillChip("Vendor") {
+                email = "ramesh@southtiffin.com"
+                password = "demo1234"
+                viewModel.clearError()
+            }
+            DemoFillChip("Mess Operator") {
+                email = "mess@presidency.ac.in"
+                password = "demo1234"
+                viewModel.clearError()
+            }
+            DemoFillChip("Admin") {
+                email = "admin@presidency.ac.in"
+                password = "demo1234"
+                viewModel.clearError()
+            }
+        }
+
+        Spacer(modifier = Modifier.height(28.dp))
+
+        // Server Connection Status & Config
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(10.dp))
+                .background(Color(0xFFF7F5F8))
+                .padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "BACKEND SERVER URL",
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = InkSoft
+                )
+                Text(
+                    text = currentBaseUrl,
+                    fontSize = 12.sp,
+                    color = Ink,
+                    maxLines = 1
+                )
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "Change",
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold,
+                color = PinkDeep,
+                modifier = Modifier.clickable {
+                    serverUrlInput = currentBaseUrl
+                    showServerDialog = true
+                }
+            )
+        }
+
+        if (showServerDialog) {
+            AlertDialog(
+                onDismissRequest = { showServerDialog = false },
+                title = { Text("Configure Backend URL", fontWeight = FontWeight.Bold, color = Ink) },
+                text = {
+                    Column {
+                        Text(
+                            text = "Enter your live Vercel URL or local Wi-Fi IP (e.g. http://192.168.1.15:3000/):",
+                            fontSize = 13.sp,
+                            color = InkSoft
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        OutlinedTextField(
+                            value = serverUrlInput,
+                            onValueChange = { serverUrlInput = it },
+                            singleLine = true,
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        val trimmed = serverUrlInput.trim()
+                        if (trimmed.isNotBlank()) {
+                            viewModel.updateServerUrl(trimmed)
+                            currentBaseUrl = NetworkClient.getEffectiveBaseUrl()
+                        }
+                        showServerDialog = false
+                    }) {
+                        Text("Save & Connect", fontWeight = FontWeight.Bold, color = PinkDeep)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = {
+                        viewModel.updateServerUrl(BuildConfig.API_BASE_URL)
+                        currentBaseUrl = NetworkClient.getEffectiveBaseUrl()
+                        showServerDialog = false
+                    }) {
+                        Text("Reset Default", color = InkSoft)
+                    }
+                }
+            )
         }
     }
 }

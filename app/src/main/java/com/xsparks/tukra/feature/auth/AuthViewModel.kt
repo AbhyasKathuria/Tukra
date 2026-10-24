@@ -25,11 +25,18 @@ class AuthViewModel(
     private val tokenStore: TokenStore
 ) : ViewModel() {
 
-    private val api = NetworkClient.getApi(tokenStore)
+    private fun getApi() = NetworkClient.getApi(tokenStore)
     private val authInterceptor = NetworkClient.getAuthInterceptor(tokenStore)
 
     private val _uiState = MutableStateFlow(AuthUiState())
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
+
+    fun updateServerUrl(url: String) {
+        viewModelScope.launch {
+            tokenStore.saveBaseUrl(url)
+            NetworkClient.setCustomBaseUrl(url)
+        }
+    }
 
     fun clearError() {
         _uiState.update { it.copy(error = null) }
@@ -45,7 +52,7 @@ class AuthViewModel(
             _uiState.update { it.copy(isLoading = true, error = null) }
 
             val result = safeApiCall {
-                api.login(LoginRequest(email = email.trim(), password = pass))
+                getApi().login(LoginRequest(email = email.trim(), password = pass))
             }
 
             when (result) {
@@ -81,7 +88,7 @@ class AuthViewModel(
             _uiState.update { it.copy(isLoading = true, error = null) }
 
             val result = safeApiCall {
-                api.register(
+                getApi().register(
                     RegisterRequest(
                         email = email.trim(),
                         password = pass,

@@ -21,6 +21,21 @@ class TokenStore(private val context: Context) {
         private val KEY_USER_ROLE = stringPreferencesKey("user_role")
         private val KEY_CAMPUS_ID = stringPreferencesKey("campus_id")
         private val KEY_OUTLET_ID = stringPreferencesKey("outlet_id")
+        private val KEY_BASE_URL = stringPreferencesKey("custom_base_url")
+    }
+
+    val baseUrlFlow: Flow<String?> = context.dataStore.data.map { preferences ->
+        preferences[KEY_BASE_URL]
+    }
+
+    suspend fun getBaseUrl(): String? {
+        return context.dataStore.data.first()[KEY_BASE_URL]
+    }
+
+    suspend fun saveBaseUrl(url: String) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_BASE_URL] = url
+        }
     }
 
     val tokenFlow: Flow<String?> = context.dataStore.data.map { preferences ->

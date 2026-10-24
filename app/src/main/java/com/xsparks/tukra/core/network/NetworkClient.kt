@@ -20,6 +20,30 @@ object NetworkClient {
 
     private var apiInstance: TukraApi? = null
     private var authInterceptorInstance: AuthInterceptor? = null
+    private var activeBaseUrl: String? = null
+    var customBaseUrlOverride: String? = null
+
+    fun getEffectiveBaseUrl(): String {
+        val override = customBaseUrlOverride
+        if (!override.isNullOrBlank()) {
+            return if (override.endsWith("/")) override else "$override/"
+        }
+        var baseUrl = BuildConfig.API_BASE_URL
+        return if (baseUrl.endsWith("/")) baseUrl else "$baseUrl/"
+    }
+
+    fun setCustomBaseUrl(url: String?) {
+        if (url.isNullOrBlank()) {
+            customBaseUrlOverride = null
+        } else {
+            var formatted = url.trim()
+            if (!formatted.endsWith("/")) {
+                formatted = "$formatted/"
+            }
+            customBaseUrlOverride = formatted
+        }
+        apiInstance = null // Invalidate to rebuild on next call
+    }
 
     fun getAuthInterceptor(tokenStore: TokenStore): AuthInterceptor {
         if (authInterceptorInstance == null) {
@@ -29,7 +53,9 @@ object NetworkClient {
     }
 
     fun getApi(tokenStore: TokenStore): TukraApi {
-        if (apiInstance == null) {
+        val targetUrl = getEffectiveBaseUrl()
+        if (apiInstance == null || activeBaseUrl != targetUrl) {
+            activeBaseUrl = targetUrl
             val loggingInterceptor = HttpLoggingInterceptor().apply {
                 level = if (BuildConfig.DEBUG) {
                     HttpLoggingInterceptor.Level.BODY
@@ -48,14 +74,9 @@ object NetworkClient {
                 .writeTimeout(20, TimeUnit.SECONDS)
                 .build()
 
-            var baseUrl = BuildConfig.API_BASE_URL
-            if (!baseUrl.endsWith("/")) {
-                baseUrl = "$baseUrl/"
-            }
-
             val contentType = "application/json".toMediaType()
             val retrofit = Retrofit.Builder()
-                .baseUrl(baseUrl)
+                .baseUrl(targetUrl)
                 .client(okHttpClient)
                 .addConverterFactory(json.asConverterFactory(contentType))
                 .build()
