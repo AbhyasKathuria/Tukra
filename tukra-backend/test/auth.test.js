@@ -45,7 +45,7 @@ test('auth middleware: rejects malformed token with 401 UNAUTHENTICATED', () => 
 
 test('auth middleware: accepts valid JWT and attaches user to req', () => {
   const payload = {
-    id: 'u1111111-1111-1111-1111-111111111111',
+    id: 'a1111111-1111-1111-1111-111111111111',
     role: 'STUDENT',
     campusId: 'c1111111-1111-1111-1111-111111111111'
   };
@@ -62,7 +62,7 @@ test('auth middleware: accepts valid JWT and attaches user to req', () => {
 
 test('auth middleware: enforces role permissions (403 FORBIDDEN on unauthorized role)', () => {
   const payload = {
-    id: 'u1111111-1111-1111-1111-111111111111',
+    id: 'a1111111-1111-1111-1111-111111111111',
     role: 'STUDENT',
     campusId: 'c1111111-1111-1111-1111-111111111111'
   };

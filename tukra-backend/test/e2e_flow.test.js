@@ -7,7 +7,7 @@ test('Stage 2 End-to-End Scripted Flow (Order Lifecycle & Verification)', async 
 
   // 1. Student logs in & checks wallet balance
   const student = {
-    id: 'u1111111-1111-1111-1111-111111111111',
+    id: 'a1111111-1111-1111-1111-111111111111',
     name: 'Aarav Sharma',
     role: 'STUDENT',
     walletBalancePaise: 50000 // ₹500
