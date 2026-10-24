@@ -30,6 +30,14 @@ sealed interface Route {
     @Serializable data object VendorCapacity : Route
     @Serializable data object VendorProposals : Route
     @Serializable data class VendorOrderDetail(val orderId: String) : Route
+    // Mess Flow
     @Serializable data object MessMenu : Route
+    @Serializable data object MessReservations : Route
+    @Serializable data object MessCounter : Route
+
+    // Admin Flow
     @Serializable data object AdminOverview : Route
+    @Serializable data object AdminOutlets : Route
+    @Serializable data object AdminAnalytics : Route
+    @Serializable data object AdminSync : Route
 }

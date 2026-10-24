@@ -8,10 +8,18 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.xsparks.tukra.core.cart.CartManager
+import com.xsparks.tukra.core.designsystem.components.AdminBottomBar
+import com.xsparks.tukra.core.designsystem.components.AdminNavTab
+import com.xsparks.tukra.core.designsystem.components.MessBottomBar
+import com.xsparks.tukra.core.designsystem.components.MessNavTab
 import com.xsparks.tukra.core.designsystem.components.StudentNavTab
 import com.xsparks.tukra.core.designsystem.components.VendorNavTab
 import com.xsparks.tukra.core.network.TokenStore
+import com.xsparks.tukra.feature.admin.AdminAnalyticsScreen
+import com.xsparks.tukra.feature.admin.AdminOutletsScreen
 import com.xsparks.tukra.feature.admin.AdminOverviewScreen
+import com.xsparks.tukra.feature.admin.AdminSyncScreen
+import com.xsparks.tukra.feature.admin.AdminViewModel
 import com.xsparks.tukra.feature.auth.AuthViewModel
 import com.xsparks.tukra.feature.auth.LoginScreen
 import com.xsparks.tukra.feature.auth.RegisterScreen
@@ -24,7 +32,12 @@ import com.xsparks.tukra.feature.home.HomeScreen
 import com.xsparks.tukra.feature.home.HomeViewModel
 import com.xsparks.tukra.feature.menu.MenuViewModel
 import com.xsparks.tukra.feature.menu.OutletMenuScreen
+import com.xsparks.tukra.feature.mess.MessCounterScreen
+import com.xsparks.tukra.feature.mess.MessCounterViewModel
 import com.xsparks.tukra.feature.mess.MessMenuScreen
+import com.xsparks.tukra.feature.mess.MessMenuViewModel
+import com.xsparks.tukra.feature.mess.MessReservationsScreen
+import com.xsparks.tukra.feature.mess.MessReservationsViewModel
 import com.xsparks.tukra.feature.onboarding.OnboardingScreen
 import com.xsparks.tukra.feature.profile.ProfileScreen
 import com.xsparks.tukra.feature.profile.ProfileViewModel
@@ -61,6 +74,10 @@ fun TukraNavHost(
     val vendorMenuViewModel = remember { VendorMenuViewModel(tokenStore) }
     val vendorCapacityViewModel = remember { VendorCapacityViewModel(tokenStore) }
     val vendorProposalsViewModel = remember { VendorProposalsViewModel(tokenStore) }
+    val messMenuViewModel = remember { MessMenuViewModel(tokenStore) }
+    val messReservationsViewModel = remember { MessReservationsViewModel(tokenStore) }
+    val messCounterViewModel = remember { MessCounterViewModel(tokenStore) }
+    val adminViewModel = remember { AdminViewModel(tokenStore) }
     val cartManager = remember { CartManager.getInstance(context) }
 
     fun navigateForRole(role: String) {
@@ -98,6 +115,31 @@ fun TukraNavHost(
         }
         navController.navigate(targetRoute) {
             popUpTo<Route.VendorQueue> { inclusive = false }
+            launchSingleTop = true
+        }
+    }
+
+    fun handleMessTabSelection(tab: MessNavTab) {
+        val targetRoute: Route = when (tab) {
+            MessNavTab.MENU -> Route.MessMenu
+            MessNavTab.RESERVATIONS -> Route.MessReservations
+            MessNavTab.COUNTER -> Route.MessCounter
+        }
+        navController.navigate(targetRoute) {
+            popUpTo<Route.MessMenu> { inclusive = false }
+            launchSingleTop = true
+        }
+    }
+
+    fun handleAdminTabSelection(tab: AdminNavTab) {
+        val targetRoute: Route = when (tab) {
+            AdminNavTab.OVERVIEW -> Route.AdminOverview
+            AdminNavTab.OUTLETS -> Route.AdminOutlets
+            AdminNavTab.ANALYTICS -> Route.AdminAnalytics
+            AdminNavTab.SYNC -> Route.AdminSync
+        }
+        navController.navigate(targetRoute) {
+            popUpTo<Route.AdminOverview> { inclusive = false }
             launchSingleTop = true
         }
     }
@@ -340,9 +382,12 @@ fun TukraNavHost(
             )
         }
 
+        // Mess Flow
         composable<Route.MessMenu> {
             MessMenuScreen(
                 tokenStore = tokenStore,
+                viewModel = messMenuViewModel,
+                onTabSelected = { handleMessTabSelection(it) },
                 onLogout = {
                     navController.navigate(Route.Login) {
                         popUpTo(0) { inclusive = true }
@@ -351,14 +396,57 @@ fun TukraNavHost(
             )
         }
 
+        composable<Route.MessReservations> {
+            MessReservationsScreen(
+                tokenStore = tokenStore,
+                viewModel = messReservationsViewModel,
+                onTabSelected = { handleMessTabSelection(it) }
+            )
+        }
+
+        composable<Route.MessCounter> {
+            MessCounterScreen(
+                tokenStore = tokenStore,
+                viewModel = messCounterViewModel,
+                onTabSelected = { handleMessTabSelection(it) }
+            )
+        }
+
+        // Admin Flow
         composable<Route.AdminOverview> {
             AdminOverviewScreen(
                 tokenStore = tokenStore,
+                viewModel = adminViewModel,
+                onTabSelected = { handleAdminTabSelection(it) },
                 onLogout = {
                     navController.navigate(Route.Login) {
                         popUpTo(0) { inclusive = true }
                     }
                 }
+            )
+        }
+
+        composable<Route.AdminOutlets> {
+            AdminOutletsScreen(
+                tokenStore = tokenStore,
+                viewModel = adminViewModel,
+                onTabSelected = { handleAdminTabSelection(it) }
+            )
+        }
+
+        composable<Route.AdminAnalytics> {
+            AdminAnalyticsScreen(
+                tokenStore = tokenStore,
+                viewModel = adminViewModel,
+                onTabSelected = { handleAdminTabSelection(it) }
+            )
+        }
+
+        composable<Route.AdminSync> {
+            AdminSyncScreen(
+                tokenStore = tokenStore,
+                viewModel = adminViewModel,
+                onTabSelected = { handleAdminTabSelection(it) }
             )
         }
     }

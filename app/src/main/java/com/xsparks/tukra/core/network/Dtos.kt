@@ -329,3 +329,139 @@ data class HealthResponse(
     val time: String? = null,
     val features: HealthFeatures = HealthFeatures()
 )
+
+// --- Mess DTOs ---
+
+@Serializable
+data class MessMenuItemDto(
+    val messMenuId: String,
+    val outletId: String,
+    val meal: String, // "BREAKFAST", "LUNCH", "SNACKS", "DINNER"
+    val menuItemId: String,
+    val dishName: String,
+    val pricePaise: Int = 0,
+    val isVeg: Boolean = true,
+    val description: String? = null,
+    val imageUrl: String? = null,
+    val plannedQty: Int? = null,
+    val reservationCount: Int = 0
+)
+
+@Serializable
+data class MessMenuResponse(
+    val serviceDate: String,
+    val items: List<MessMenuItemDto> = emptyList()
+)
+
+@Serializable
+data class PostMessMenuRequest(
+    val outletId: String,
+    val serviceDate: String,
+    val meal: String,
+    val menuItemId: String,
+    val plannedQty: Int? = null
+)
+
+@Serializable
+data class DemandForecastItemDto(
+    val menuItemId: String,
+    val name: String,
+    val category: String = "General",
+    val isVeg: Boolean = true,
+    val fourWeekWeekdayAvg: Int = 0,
+    val currentReservations: Int = 0,
+    val plannedQty: Int? = null,
+    val suggestedQty: Int = 15,
+    val confidenceLabel: String = "Estimate"
+)
+
+@Serializable
+data class DemandForecastResponse(
+    val outletId: String,
+    val targetDate: String,
+    val dayOfWeek: String,
+    val items: List<DemandForecastItemDto> = emptyList()
+)
+
+// --- Admin DTOs ---
+
+@Serializable
+data class AdminOverviewKpis(
+    val ordersToday: Int = 0,
+    val revenueTodayPaise: Int = 0,
+    val revenueTodayRupees: Int = 0,
+    val activeOutlets: Int = 0,
+    val totalOutlets: Int = 0,
+    val avgWaitMinutes: Int = 0
+)
+
+@Serializable
+data class HourlyOrderStat(
+    val hour: Int,
+    val label: String,
+    val count: Int,
+    val revenuePaise: Int
+)
+
+@Serializable
+data class AdminOverviewResponse(
+    val kpis: AdminOverviewKpis,
+    val ordersByHour: List<HourlyOrderStat> = emptyList()
+)
+
+@Serializable
+data class TopDishStat(
+    val name: String,
+    val outletName: String,
+    val totalQty: Int,
+    val totalRevenuePaise: Int
+)
+
+@Serializable
+data class WasteAuditItem(
+    val meal: String,
+    val dishName: String,
+    val plannedQty: Int,
+    val consumedQty: Int,
+    val estimatedSurplus: Int,
+    val wastePercent: Int,
+    val status: String
+)
+
+@Serializable
+data class AdminDemandResponse(
+    val date: String,
+    val topDishes: List<TopDishStat> = emptyList(),
+    val wasteAudit: List<WasteAuditItem> = emptyList()
+)
+
+@Serializable
+data class AdminOutletItem(
+    val id: String,
+    val name: String,
+    val type: String,
+    val isOpen: Boolean = true,
+    val slotCapacity: Int? = null,
+    val opensAt: String? = null,
+    val acceptsOrdersUntil: String? = null,
+    val ownerName: String? = null,
+    val totalOrders: Int = 0,
+    val lastSyncStatus: String? = null,
+    val lastSyncAt: String? = null
+)
+
+@Serializable
+data class AdminSyncJobItem(
+    val id: String,
+    val outletId: String,
+    val outletName: String? = null,
+    val tinyfishRunId: String? = null,
+    val status: String,
+    val streamingUrl: String? = null,
+    val progress: String? = null,
+    val startedAt: String? = null,
+    val finishedAt: String? = null,
+    val numSteps: Int? = null,
+    val proposalCount: Int = 0,
+    val errorMessage: String? = null
+)

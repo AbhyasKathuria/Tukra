@@ -149,4 +149,33 @@ interface TukraApi {
 
     @POST("plate/{id}/pay")
     suspend fun payPlateSession(@Path("id") plateId: String): PlateSessionDto
+
+    @GET("mess/menu")
+    suspend fun getMessMenu(
+        @Query("date") date: String? = null,
+        @Query("meal") meal: String? = null,
+        @Query("outletId") outletId: String? = null
+    ): MessMenuResponse
+
+    @POST("mess/menu")
+    suspend fun postMessMenu(@Body body: PostMessMenuRequest): MessMenuItemDto
+
+    @GET("mess/forecast")
+    suspend fun getMessForecast(
+        @Query("outletId") outletId: String? = null,
+        @Query("date") date: String? = null
+    ): DemandForecastResponse
+
+    // --- Admin ---
+    @GET("admin/overview")
+    suspend fun getAdminOverview(): AdminOverviewResponse
+
+    @GET("admin/demand")
+    suspend fun getAdminDemand(@Query("date") date: String? = null): AdminDemandResponse
+
+    @GET("admin/outlets")
+    suspend fun getAdminOutlets(): List<AdminOutletItem>
+
+    @GET("admin/sync-jobs")
+    suspend fun getAdminSyncJobs(): List<AdminSyncJobItem>
 }
