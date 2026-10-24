@@ -11,6 +11,9 @@ import outletsRouter from './routes/outlets.js';
 import ordersRouter from './routes/orders.js';
 import walletRouter from './routes/wallet.js';
 import vendorRouter from './routes/vendor.js';
+import plateRouter from './routes/plate.js';
+import messRouter from './routes/mess.js';
+import adminRouter from './routes/admin.js';
 import { errorHandler } from './middleware/error.js';
 
 const app = express();
@@ -61,6 +64,9 @@ app.use('/outlets', outletsRouter);
 app.use('/orders', ordersRouter);
 app.use('/wallet', walletRouter);
 app.use('/vendor', vendorRouter);
+app.use('/plate', plateRouter);
+app.use('/mess', messRouter);
+app.use('/admin', adminRouter);
 
 // 404 Handler
 app.use((req, res) => {
