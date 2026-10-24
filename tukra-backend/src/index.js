@@ -1,12 +1,18 @@
 import app from './app.js';
 import config from './config.js';
 import { pool } from './db.js';
+import { initCronJobs } from './jobs/cron.js';
 
 const PORT = config.PORT || 3000;
 
 const server = app.listen(PORT, () => {
   console.log(`🚀 Tukra Backend API listening on port ${PORT} [${config.NODE_ENV}]`);
   console.log(`📍 Health check available at: http://localhost:${PORT}/health`);
+
+  // Initialize background cron jobs (skip in test environment)
+  if (config.NODE_ENV !== 'test') {
+    initCronJobs();
+  }
 });
 
 // Graceful shutdown
