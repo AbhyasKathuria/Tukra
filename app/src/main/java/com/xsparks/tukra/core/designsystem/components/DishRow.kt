@@ -24,6 +24,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -51,11 +55,20 @@ fun DishRow(
     onItemClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    val haptic = LocalHapticFeedback.current
     val opacity = if (isSoldOut) 0.5f else 1.0f
+
+    // C10: TalkBack accessibility string: "name, veg/non-veg, price, quantity in cart"
+    val vegText = if (isVeg) "Vegetarian" else "Non-vegetarian"
+    val cartText = if (quantity > 0) "$quantity in cart" else "Not in cart"
+    val accessibilityLabel = "$name, $vegText, $priceRupees, $cartText"
 
     Row(
         modifier = modifier
             .fillMaxWidth()
+            .semantics(mergeDescendants = true) {
+                contentDescription = accessibilityLabel
+            }
             .clickable(enabled = !isSoldOut, onClick = onItemClick)
             .padding(vertical = 12.dp, horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -115,28 +128,31 @@ fun DishRow(
                 )
             }
         } else if (quantity > 0) {
-            // Stepper
+            // Stepper with haptics and >= 48dp touchable targets
             Row(
                 modifier = Modifier
                     .clip(RoundedCornerShape(10.dp))
                     .background(Blush.copy(alpha = 0.35f))
                     .border(1.dp, TukraPink, RoundedCornerShape(10.dp))
-                    .padding(horizontal = 6.dp, vertical = 4.dp),
+                    .padding(horizontal = 4.dp, vertical = 2.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Box(
                     modifier = Modifier
-                        .size(24.dp)
-                        .clip(RoundedCornerShape(6.dp))
-                        .clickable(onClick = onDecrement),
+                        .size(36.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .clickable {
+                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            onDecrement()
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.Remove,
-                        contentDescription = "Decrease",
+                        contentDescription = "Decrease $name quantity",
                         tint = Ink,
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(18.dp)
                     )
                 }
 
@@ -149,27 +165,33 @@ fun DishRow(
 
                 Box(
                     modifier = Modifier
-                        .size(24.dp)
-                        .clip(RoundedCornerShape(6.dp))
-                        .clickable(onClick = onIncrement),
+                        .size(36.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .clickable {
+                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            onIncrement()
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
-                        contentDescription = "Increase",
+                        contentDescription = "Increase $name quantity",
                         tint = Ink,
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(18.dp)
                     )
                 }
             }
         } else {
-            // Add button
+            // Add button with haptic tick
             Box(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(10.dp))
+                    .clip(RoundedCornerShape(12.dp))
                     .background(TukraPink)
-                    .clickable(onClick = onAddClick)
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                    .clickable {
+                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        onAddClick()
+                    }
+                    .padding(horizontal = 18.dp, vertical = 10.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(

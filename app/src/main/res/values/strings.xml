@@ -1,3 +1,43 @@
 <resources>
     <string name="app_name">Tukra</string>
+    <string name="tagline">Take your tukra. Pay for your tukra.</string>
+
+    <!-- General -->
+    <string name="login">Log In</string>
+    <string name="register">Create Account</string>
+    <string name="logout">Log Out</string>
+    <string name="cancel">Cancel</string>
+    <string name="retry">Try Again</string>
+
+    <!-- Vendor Strings -->
+    <string name="vendor_queue">Queue</string>
+    <string name="vendor_menu">Menu</string>
+    <string name="vendor_capacity">Capacity</string>
+    <string name="vendor_proposals">Proposals</string>
+    <string name="vendor_accept">Accept</string>
+    <string name="vendor_start_preparing">Start Preparing</string>
+    <string name="vendor_mark_ready">Mark Ready</string>
+    <string name="vendor_reject">Reject</string>
+    <string name="vendor_verify_qr">Verify QR</string>
+    <string name="vendor_new_order">New Order Received</string>
+    <string name="vendor_stall_open">Stall is OPEN</string>
+    <string name="vendor_stall_closed">Stall is CLOSED</string>
+
+    <!-- Mess Strings -->
+    <string name="mess_menu">Mess Menu</string>
+    <string name="mess_forecast">Forecast</string>
+    <string name="mess_counter">Serving Counter</string>
+    <string name="mess_breakfast">Breakfast</string>
+    <string name="mess_lunch">Lunch</string>
+    <string name="mess_snacks">Snacks</string>
+    <string name="mess_dinner">Dinner</string>
+    <string name="mess_publish">Publish Dish</string>
+    <string name="mess_simulated_footer">Simulated smart plate session — Counter taps simulate RFID tray weighing and cameras.</string>
+
+    <!-- Microcopy -->
+    <string name="empty_cart">Nothing here yet. Pick your tukra.</string>
+    <string name="slot_picker_title">When do you want it?</string>
+    <string name="order_ready">Your order is hot and ready. Show your QR at the counter.</string>
+    <string name="slot_full">That time just filled up. Try the next slot.</string>
+    <string name="no_internet">No connection. Your cart is safe, we will wait.</string>
 </resources>

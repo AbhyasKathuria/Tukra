@@ -1,5 +1,6 @@
 package com.xsparks.tukra.core.designsystem.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +16,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -34,8 +37,13 @@ fun PrimaryButton(
     isLoading: Boolean = false,
     contentPadding: PaddingValues = PaddingValues(horizontal = 24.dp, vertical = 14.dp)
 ) {
+    val haptic = LocalHapticFeedback.current
+
     Button(
-        onClick = onClick,
+        onClick = {
+            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+            onClick()
+        },
         enabled = enabled && !isLoading,
         shape = RoundedCornerShape(16.dp),
         colors = ButtonDefaults.buttonColors(
@@ -45,7 +53,7 @@ fun PrimaryButton(
             disabledContentColor = Ink.copy(alpha = 0.4f)
         ),
         contentPadding = contentPadding,
-        modifier = modifier.height(52.dp)
+        modifier = modifier.height(56.dp)
     ) {
         if (isLoading) {
             CircularProgressIndicator(
@@ -72,19 +80,22 @@ fun SecondaryButton(
     enabled: Boolean = true,
     isOutlined: Boolean = false
 ) {
+    val haptic = LocalHapticFeedback.current
+
     if (isOutlined) {
         OutlinedButton(
-            onClick = onClick,
+            onClick = {
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                onClick()
+            },
             enabled = enabled,
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.outlinedButtonColors(
                 contentColor = Ink,
                 disabledContentColor = Ink.copy(alpha = 0.4f)
             ),
-            border = ButtonDefaults.outlinedButtonBorder.copy(
-                brush = androidx.compose.ui.graphics.SolidColor(OutlineWarm)
-            ),
-            modifier = modifier.height(52.dp)
+            border = BorderStroke(1.5.dp, OutlineWarm),
+            modifier = modifier.height(56.dp)
         ) {
             Text(
                 text = text,
@@ -95,16 +106,20 @@ fun SecondaryButton(
         }
     } else {
         Button(
-            onClick = onClick,
+            onClick = {
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                onClick()
+            },
             enabled = enabled,
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Rose,
+                containerColor = Color.White,
                 contentColor = Ink,
-                disabledContainerColor = Rose.copy(alpha = 0.4f),
+                disabledContainerColor = Color.White.copy(alpha = 0.5f),
                 disabledContentColor = Ink.copy(alpha = 0.4f)
             ),
-            modifier = modifier.height(52.dp)
+            border = BorderStroke(1.5.dp, Ink),
+            modifier = modifier.height(56.dp)
         ) {
             Text(
                 text = text,
@@ -120,8 +135,8 @@ fun SecondaryButton(
 @Composable
 fun ButtonsPreview() {
     TukraTheme {
-        Box(modifier = Modifier.fillMaxWidth()) {
-            PrimaryButton(text = "Place Order", onClick = {}, modifier = Modifier.fillMaxWidth())
+        Box(modifier = Modifier.height(200.dp)) {
+            PrimaryButton(text = "Pay ₹145", onClick = {})
         }
     }
 }

@@ -1,0 +1,43 @@
+<resources>
+    <string name="app_name">टुकड़ा</string>
+    <string name="tagline">अपना टुकड़ा चुनें। केवल अपने टुकड़े का भुगतान करें।</string>
+
+    <!-- General -->
+    <string name="login">लॉग इन करें</string>
+    <string name="register">खाता बनाएं</string>
+    <string name="logout">लॉग आउट</string>
+    <string name="cancel">रद्द करें</string>
+    <string name="retry">पुनः प्रयास करें</string>
+
+    <!-- Vendor Strings -->
+    <string name="vendor_queue">कतार</string>
+    <string name="vendor_menu">मेन्यू</string>
+    <string name="vendor_capacity">क्षमता</string>
+    <string name="vendor_proposals">प्रस्ताव</string>
+    <string name="vendor_accept">स्वीकार करें</string>
+    <string name="vendor_start_preparing">बनाना शुरू करें</string>
+    <string name="vendor_mark_ready">तैयार है</string>
+    <string name="vendor_reject">अस्वीकार करें</string>
+    <string name="vendor_verify_qr">क्यूआर चेक करें</string>
+    <string name="vendor_new_order">नया ऑर्डर प्राप्त हुआ</string>
+    <string name="vendor_stall_open">स्टॉल खुला है</string>
+    <string name="vendor_stall_closed">स्टॉल बंद है</string>
+
+    <!-- Mess Strings -->
+    <string name="mess_menu">मेस मेन्यू</string>
+    <string name="mess_forecast">पूर्वानुमान</string>
+    <string name="mess_counter">सर्विंग काउंटर</string>
+    <string name="mess_breakfast">नाश्ता</string>
+    <string name="mess_lunch">दोपहर भोजन</string>
+    <string name="mess_snacks">शाम नाश्ता</string>
+    <string name="mess_dinner">रात का खाना</string>
+    <string name="mess_publish">व्यंजन जोड़ें</string>
+    <string name="mess_simulated_footer">सिम्युलेटेड स्मार्ट प्लेट सत्र — काउंटर टैप स्मार्ट ट्रे और कैमरों का अनुकरण करते हैं।</string>
+
+    <!-- Microcopy -->
+    <string name="empty_cart">यहाँ अभी कुछ नहीं है। अपना टुकड़ा चुनें।</string>
+    <string name="slot_picker_title">आपको यह कब चाहिए?</string>
+    <string name="order_ready">आपका ऑर्डर गरमा-गरम तैयार है। काउंटर पर अपना क्यूआर दिखाएं।</string>
+    <string name="slot_full">यह समय अभी भर गया है। अगला स्लॉट चुनें।</string>
+    <string name="no_internet">इंटरनेट कनेक्शन नहीं है। आपका कार्ट सुरक्षित है, हम प्रतीक्षा करेंगे।</string>
+</resources>
