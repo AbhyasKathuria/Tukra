@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>South Tiffin — Campus Canteen Menu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --tukra-pink: #FE81D4;
+      --rose: #FAACBF;
+      --blush: #FBC3C1;
+      --butter: #FFEABB;
+      --ink: #2B1A27;
+      --ink-soft: #6B5666;
+      --outline: #F3DCE5;
+      --success: #1F9D55;
+      --danger: #D32F4E;
+      --white: #FFFFFF;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #FAFAFC;
+      color: var(--ink);
+      line-height: 1.5;
+      padding-bottom: 60px;
+    }
+
+    header {
+      background-color: var(--white);
+      border-bottom: 1px solid var(--outline);
+      padding: 32px 20px;
+      text-align: center;
+    }
+
+    .header-badge {
+      display: inline-block;
+      background-color: var(--butter);
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    h1 {
+      font-family: 'Sora', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+
+    .subhead {
+      color: var(--ink-soft);
+      font-size: 15px;
+    }
+
+    .container {
+      max-width: 680px;
+      margin: 32px auto;
+      padding: 0 16px;
+    }
+
+    .category-section {
+      margin-bottom: 32px;
+    }
+
+    .category-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--rose);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .menu-card {
+      background: var(--white);
+      border: 1px solid var(--outline);
+      border-radius: 16px;
+      padding: 16px 20px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .menu-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(43, 26, 39, 0.05);
+    }
+
+    .item-info {
+      flex: 1;
+      padding-right: 16px;
+    }
+
+    .item-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .veg-mark {
+      width: 14px;
+      height: 14px;
+      border: 2px solid var(--success);
+      padding: 1px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .veg-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--success);
+      border-radius: 50%;
+    }
+
+    .item-name {
+      font-family: 'Sora', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .item-desc {
+      font-size: 13px;
+      color: var(--ink-soft);
+    }
+
+    .price-col {
+      text-align: right;
+    }
+
+    .price {
+      font-family: 'Sora', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .sold-out-badge {
+      display: inline-block;
+      margin-top: 4px;
+      background: #FEE2E2;
+      color: var(--danger);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 13px;
+      color: var(--ink-soft);
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-badge">Academic Block 1 • Ground Floor</div>
+    <h1>South Tiffin</h1>
+    <p class="subhead">Presidency University • Campus Canteen Menu</p>
+  </header>
+
+  <main class="container">
+
+    <!-- Mains -->
+    <section class="category-section">
+      <h2 class="category-title">Tiffin & Mains</h2>
+
+      <div class="menu-card">
+        <div class="item-info">
+          <div class="item-title-row">
+            <span class="veg-mark"><span class="veg-dot"></span></span>
+            <span class="item-name">Masala Dosa</span>
+          </div>
+          <p class="item-desc">Crispy golden crepe with spiced potato filling, 2 chutneys & sambar</p>
+        </div>
+        <div class="price-col">
+          <div class="price">₹70</div>
+        </div>
+      </div>
+
+      <div class="menu-card">
+        <div class="item-info">
+          <div class="item-title-row">
+            <span class="veg-mark"><span class="veg-dot"></span></span>
+            <span class="item-name">Idli Vada Combo</span>
+          </div>
+          <p class="item-desc">2 steamed fluffy idlis & 1 medu vada with fresh coconut chutney</p>
+        </div>
+        <div class="price-col">
+          <div class="price">₹55</div>
+        </div>
+      </div>
+
+      <div class="menu-card">
+        <div class="item-info">
+          <div class="item-title-row">
+            <span class="veg-mark"><span class="veg-dot"></span></span>
+            <span class="item-name">Onion Uttapam</span>
+          </div>
+          <p class="item-desc">Thick rice pancake topped with caramelized red onions & green chillies</p>
+        </div>
+        <div class="price-col">
+          <div class="price">₹65</div>
+        </div>
+      </div>
+
+      <div class="menu-card">
+        <div class="item-info">
+          <div class="item-title-row">
+            <span class="veg-mark"><span class="veg-dot"></span></span>
+            <span class="item-name">Poori Sagu</span>
+          </div>
+          <p class="item-desc">3 puffed pooris served with authentic Karnataka potato-vegetable sagu</p>
+        </div>
+        <div class="price-col">
+          <div class="price">₹60</div>
+        </div>
+      </div>
+
+      <div class="menu-card">
+        <div class="item-info">
+          <div class="item-title-row">
+            <span class="veg-mark"><span class="veg-dot"></span></span>
+            <span class="item-name">Chole Bhature</span>
+          </div>
+          <p class="item-desc">2 giant golden bhature with spiced Amritsari chole</p>
+        </div>
+        <div class="price-col">
+          <div class="price">₹90</div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Snacks & Desserts -->
+    <section class="category-section">
+      <h2 class="category-title">Snacks & Sweets</h2>
+
+      <div class="menu-card">
+        <div class="item-info">
+          <div class="item-title-row">
+            <span class="veg-mark"><span class="veg-dot"></span></span>
+            <span class="item-name">Rava Kesari</span>
+          </div>
+          <p class="item-desc">Semolina sweet pudding with ghee, saffron, and roasted cashews</p>
+        </div>
+        <div class="price-col">
+          <div class="price">₹40</div>
+        </div>
+      </div>
+
+      <div class="menu-card">
+        <div class="item-info">
+          <div class="item-title-row">
+            <span class="veg-mark"><span class="veg-dot"></span></span>
+            <span class="item-name">Curd Rice</span>
+          </div>
+          <p class="item-desc">Tempered curd rice with mustard, pomegranate seeds & fresh coriander</p>
+        </div>
+        <div class="price-col">
+          <div class="price">₹50</div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Beverages -->
+    <section class="category-section">
+      <h2 class="category-title">Beverages</h2>
+
+      <div class="menu-card">
+        <div class="item-info">
+          <div class="item-title-row">
+            <span class="veg-mark"><span class="veg-dot"></span></span>
+            <span class="item-name">Filter Coffee</span>
+          </div>
+          <p class="item-desc">Traditional South Indian chicory blend with piping hot frothy milk</p>
+        </div>
+        <div class="price-col">
+          <div class="price">₹25</div>
+        </div>
+      </div>
+
+    </section>
+
+    <footer>
+      <p>Official Public Canteen Menu • Updated daily</p>
+      <p>Powered by Tukra Campus Intelligence</p>
+    </footer>
+
+  </main>
+
+</body>
+</html>
