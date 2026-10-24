@@ -54,6 +54,17 @@ const loginLimiter = rateLimit({
   }
 });
 
+// Root endpoint
+app.get('/', (req, res) => {
+  res.json({
+    name: 'Tukra Backend API',
+    status: 'online',
+    version: '1.0.0',
+    documentation: 'https://github.com/AbhyasKathuria/Tukra/blob/main/docs/API.md',
+    health: '/health'
+  });
+});
+
 // Mount Routes
 app.use('/health', healthRouter);
 app.use('/auth/login', loginLimiter);
