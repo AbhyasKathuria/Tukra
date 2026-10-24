@@ -6,15 +6,26 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
+import com.xsparks.tukra.core.cart.CartManager
+import com.xsparks.tukra.core.designsystem.components.StudentNavTab
 import com.xsparks.tukra.core.network.TokenStore
 import com.xsparks.tukra.feature.admin.AdminOverviewScreen
 import com.xsparks.tukra.feature.auth.AuthViewModel
 import com.xsparks.tukra.feature.auth.LoginScreen
 import com.xsparks.tukra.feature.auth.RegisterScreen
+import com.xsparks.tukra.feature.cart.CartScreen
+import com.xsparks.tukra.feature.checkout.CheckoutScreen
+import com.xsparks.tukra.feature.checkout.CheckoutViewModel
 import com.xsparks.tukra.feature.home.HomeScreen
+import com.xsparks.tukra.feature.home.HomeViewModel
+import com.xsparks.tukra.feature.menu.MenuViewModel
+import com.xsparks.tukra.feature.menu.OutletMenuScreen
 import com.xsparks.tukra.feature.mess.MessMenuScreen
 import com.xsparks.tukra.feature.onboarding.OnboardingScreen
 import com.xsparks.tukra.feature.splash.SplashScreen
+import com.xsparks.tukra.feature.tracking.TrackingScreen
+import com.xsparks.tukra.feature.tracking.TrackingViewModel
 import com.xsparks.tukra.feature.vendor.VendorQueueScreen
 
 @Composable
@@ -22,7 +33,11 @@ fun TukraNavHost(
     navController: NavHostController,
     tokenStore: TokenStore
 ) {
+    val context = LocalContext.current
     val authViewModel = remember { AuthViewModel(tokenStore) }
+    val homeViewModel = remember { HomeViewModel(tokenStore) }
+    val menuViewModel = remember { MenuViewModel(tokenStore) }
+    val cartManager = remember { CartManager.getInstance(context) }
 
     fun navigateForRole(role: String) {
         val destination: Route = when (role.uppercase()) {
@@ -110,9 +125,92 @@ fun TukraNavHost(
         composable<Route.StudentHome> {
             HomeScreen(
                 tokenStore = tokenStore,
-                onLogout = {
-                    navController.navigate(Route.Login) {
-                        popUpTo(0) { inclusive = true }
+                viewModel = homeViewModel,
+                onOutletClick = { id, name ->
+                    navController.navigate(Route.OutletMenu(outletId = id, outletName = name))
+                },
+                onViewCartClick = {
+                    navController.navigate(Route.Cart)
+                },
+                onWalletClick = {
+                    // Navigate to wallet or refresh
+                    homeViewModel.refreshHome()
+                },
+                onTabSelected = { tab ->
+                    when (tab) {
+                        StudentNavTab.HOME -> Unit
+                        StudentNavTab.ORDERS -> {
+                            // Stage 7 Orders
+                        }
+                        StudentNavTab.SCAN -> {
+                            // Stage 7 Scan
+                        }
+                        StudentNavTab.WALLET -> {
+                            // Stage 7 Wallet
+                        }
+                        StudentNavTab.PROFILE -> {
+                            // Stage 7 Profile
+                        }
+                    }
+                }
+            )
+        }
+
+        composable<Route.OutletMenu> { backStackEntry ->
+            val route = backStackEntry.toRoute<Route.OutletMenu>()
+            OutletMenuScreen(
+                outletId = route.outletId,
+                outletName = route.outletName,
+                viewModel = menuViewModel,
+                onBackClick = { navController.popBackStack() },
+                onViewCartClick = { navController.navigate(Route.Cart) }
+            )
+        }
+
+        composable<Route.Cart> {
+            CartScreen(
+                tokenStore = tokenStore,
+                onBackClick = { navController.popBackStack() },
+                onProceedToCheckout = { outletId, outletName, slotId, slotStartsAt ->
+                    navController.navigate(
+                        Route.Checkout(
+                            outletId = outletId,
+                            outletName = outletName,
+                            slotId = slotId,
+                            slotStartsAt = slotStartsAt
+                        )
+                    )
+                }
+            )
+        }
+
+        composable<Route.Checkout> { backStackEntry ->
+            val route = backStackEntry.toRoute<Route.Checkout>()
+            val checkoutViewModel = remember { CheckoutViewModel(tokenStore, cartManager) }
+            CheckoutScreen(
+                outletId = route.outletId,
+                outletName = route.outletName,
+                slotId = route.slotId,
+                slotStartsAt = route.slotStartsAt,
+                viewModel = checkoutViewModel,
+                onBackClick = { navController.popBackStack() },
+                onOrderPlaced = { orderId ->
+                    navController.navigate(Route.Tracking(orderId)) {
+                        popUpTo<Route.StudentHome> { inclusive = false }
+                    }
+                }
+            )
+        }
+
+        composable<Route.Tracking> { backStackEntry ->
+            val route = backStackEntry.toRoute<Route.Tracking>()
+            val trackingViewModel = remember { TrackingViewModel(tokenStore) }
+            TrackingScreen(
+                orderId = route.orderId,
+                viewModel = trackingViewModel,
+                onBackClick = {
+                    navController.navigate(Route.StudentHome) {
+                        popUpTo<Route.StudentHome> { inclusive = true }
                     }
                 }
             )
