@@ -1,0 +1,16 @@
+## Local configuration example for Tukra Android App
+## Copy this file to local.properties and update the values.
+## DO NOT COMMIT local.properties.
+
+# Android SDK directory (set automatically by Android Studio)
+sdk.dir=C\:\\Users\\kathu\\AppData\\Local\\Android\\Sdk
+
+# Backend API Base URL (must end with a trailing slash)
+# For local Android Emulator connecting to laptop backend:
+API_BASE_URL=http://10.0.2.2:3000/
+# For physical device on the same local Wi-Fi, use your machine IP:
+# API_BASE_URL=http://192.168.1.X:3000/
+
+# Razorpay Test Key ID (only public key ID is placed here, never the secret)
+# Optional in early stages:
+RAZORPAY_KEY_ID=rzp_test_placeholder

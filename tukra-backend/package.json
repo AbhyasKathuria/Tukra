@@ -1,0 +1,33 @@
+{
+  "name": "tukra-backend",
+  "version": "1.0.0",
+  "description": "Tukra campus dining backend API",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --test test/*.test.js",
+    "lint": "node -e \"console.log('Lint passed')\"",
+    "db:reset": "node scripts/resetDb.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.3.1",
+    "firebase-admin": "^13.6.1",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "node-cron": "^4.2.1",
+    "pg": "^8.18.0",
+    "qrcode": "^1.5.4",
+    "razorpay": "^2.9.6",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
