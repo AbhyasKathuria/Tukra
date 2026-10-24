@@ -13,7 +13,7 @@ if (localPropertiesFile.exists()) {
     localProperties.load(FileInputStream(localPropertiesFile))
 }
 
-var apiBaseUrl = localProperties.getProperty("API_BASE_URL", "http://10.0.2.2:3000/")
+var apiBaseUrl = localProperties.getProperty("API_BASE_URL", "https://tukra.vercel.app/")
 if (!apiBaseUrl.endsWith("/")) {
     apiBaseUrl += "/"
 }
