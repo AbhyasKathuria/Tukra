@@ -92,6 +92,18 @@ interface TukraApi {
     @POST("vendor/orders/verify-qr")
     suspend fun verifyOrderQr(@Body body: VerifyQrRequest): VerifyQrResponse
 
+    @GET("vendor/outlet")
+    suspend fun getVendorOutlet(): OutletDto
+
+    @PATCH("vendor/outlet")
+    suspend fun updateVendorOutlet(@Body body: UpdateOutletRequest): OutletDto
+
+    @GET("vendor/items")
+    suspend fun getVendorItems(): List<MenuItemDto>
+
+    @POST("vendor/items")
+    suspend fun addVendorItem(@Body body: AddItemRequest): MenuItemDto
+
     @PATCH("vendor/items/{id}")
     suspend fun updateVendorItem(
         @Path("id") itemId: String,
@@ -99,7 +111,7 @@ interface TukraApi {
     ): MenuItemDto
 
     @POST("vendor/sync")
-    suspend fun startMenuSync(@Body body: Map<String, String>): SyncResponse
+    suspend fun startMenuSync(@Body body: Map<String, String> = emptyMap()): SyncResponse
 
     @GET("vendor/sync/{jobId}")
     suspend fun getSyncStatus(@Path("jobId") jobId: String): SyncStatusResponse
@@ -114,7 +126,7 @@ interface TukraApi {
     ): ProposalDto
 
     @POST("vendor/proposals/approve-all")
-    suspend fun approveAllProposals(): Map<String, Int>
+    suspend fun approveAllProposals(): ApproveAllResponse
 
     // --- Plate & Mess ---
     @POST("plate/open")

@@ -70,6 +70,7 @@ data class OutletDto(
     val opensAt: String? = null,
     val closesAt: String? = null,
     val acceptsOrdersUntil: String? = null,
+    val slotCapacity: Int? = null,
     val isOpen: Boolean = true,
     val waitMinutes: Int? = null,
     val sourceMenuUrl: String? = null
@@ -85,7 +86,8 @@ data class MenuItemDto(
     val description: String? = null,
     val pricePaise: Int,
     val isVeg: Boolean = true,
-    val category: String,
+    val category: String = "All",
+    val categoryName: String? = null,
     val isAvailable: Boolean = true,
     val prepTimeSeconds: Int = 180,
     val prepUnits: Int = 1,
@@ -141,6 +143,7 @@ data class OrderDto(
     val qrToken: String? = null,
     val slotStartsAt: String? = null,
     val outletName: String? = null,
+    val studentFirstName: String? = null,
     val note: String? = null,
     val items: List<OrderItemDto> = emptyList(),
     val readyAt: String? = null,
@@ -221,25 +224,54 @@ data class SyncStatusResponse(
     val progress: String? = null,
     val streamingUrl: String? = null,
     val proposalCount: Int = 0,
-    val numSteps: Int = 0
+    val numSteps: Int = 0,
+    val errorMessage: String? = null
 )
 
 @Serializable
 data class ProposalDto(
     val id: String,
+    val jobId: String? = null,
     val changeType: String, // "NEW", "PRICE_CHANGE", "REMOVED", "AVAILABILITY"
+    val menuItemId: String? = null,
     val itemName: String,
     val oldPricePaise: Int? = null,
     val newPricePaise: Int? = null,
     val flagged: Boolean = false,
     val isVeg: Boolean = true,
     val category: String? = null,
+    val imageUrl: String? = null,
     val status: String = "PENDING"
 )
 
 @Serializable
 data class ProposalDecisionRequest(
     val approve: Boolean
+)
+
+@Serializable
+data class ApproveAllResponse(
+    val success: Boolean = true,
+    val approvedCount: Int = 0
+)
+
+@Serializable
+data class AddItemRequest(
+    val name: String,
+    val pricePaise: Int,
+    val isVeg: Boolean = true,
+    val categoryId: String? = null,
+    val description: String? = null,
+    val prepSeconds: Int = 180,
+    val prepUnits: Int = 1,
+    val spiceLevel: Int? = null
+)
+
+@Serializable
+data class UpdateOutletRequest(
+    val isOpen: Boolean? = null,
+    val slotCapacity: Int? = null,
+    val acceptsOrdersUntil: String? = null
 )
 
 // --- Plate DTOs ---

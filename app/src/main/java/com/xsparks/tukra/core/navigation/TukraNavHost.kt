@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.xsparks.tukra.core.cart.CartManager
 import com.xsparks.tukra.core.designsystem.components.StudentNavTab
+import com.xsparks.tukra.core.designsystem.components.VendorNavTab
 import com.xsparks.tukra.core.network.TokenStore
 import com.xsparks.tukra.feature.admin.AdminOverviewScreen
 import com.xsparks.tukra.feature.auth.AuthViewModel
@@ -32,7 +33,14 @@ import com.xsparks.tukra.feature.scan.PlateScanViewModel
 import com.xsparks.tukra.feature.splash.SplashScreen
 import com.xsparks.tukra.feature.tracking.TrackingScreen
 import com.xsparks.tukra.feature.tracking.TrackingViewModel
+import com.xsparks.tukra.feature.vendor.VendorCapacityScreen
+import com.xsparks.tukra.feature.vendor.VendorCapacityViewModel
+import com.xsparks.tukra.feature.vendor.VendorMenuScreen
+import com.xsparks.tukra.feature.vendor.VendorMenuViewModel
+import com.xsparks.tukra.feature.vendor.VendorProposalsScreen
+import com.xsparks.tukra.feature.vendor.VendorProposalsViewModel
 import com.xsparks.tukra.feature.vendor.VendorQueueScreen
+import com.xsparks.tukra.feature.vendor.VendorQueueViewModel
 import com.xsparks.tukra.feature.wallet.WalletScreen
 import com.xsparks.tukra.feature.wallet.WalletViewModel
 
@@ -49,6 +57,10 @@ fun TukraNavHost(
     val walletViewModel = remember { WalletViewModel(tokenStore) }
     val plateScanViewModel = remember { PlateScanViewModel(tokenStore) }
     val profileViewModel = remember { ProfileViewModel(tokenStore) }
+    val vendorQueueViewModel = remember { VendorQueueViewModel(tokenStore) }
+    val vendorMenuViewModel = remember { VendorMenuViewModel(tokenStore) }
+    val vendorCapacityViewModel = remember { VendorCapacityViewModel(tokenStore) }
+    val vendorProposalsViewModel = remember { VendorProposalsViewModel(tokenStore) }
     val cartManager = remember { CartManager.getInstance(context) }
 
     fun navigateForRole(role: String) {
@@ -73,6 +85,19 @@ fun TukraNavHost(
         }
         navController.navigate(targetRoute) {
             popUpTo<Route.StudentHome> { inclusive = false }
+            launchSingleTop = true
+        }
+    }
+
+    fun handleVendorTabSelection(tab: VendorNavTab) {
+        val targetRoute: Route = when (tab) {
+            VendorNavTab.QUEUE -> Route.VendorQueue
+            VendorNavTab.MENU -> Route.VendorMenu
+            VendorNavTab.CAPACITY -> Route.VendorCapacity
+            VendorNavTab.PROPOSALS -> Route.VendorProposals
+        }
+        navController.navigate(targetRoute) {
+            popUpTo<Route.VendorQueue> { inclusive = false }
             launchSingleTop = true
         }
     }
@@ -278,11 +303,40 @@ fun TukraNavHost(
         composable<Route.VendorQueue> {
             VendorQueueScreen(
                 tokenStore = tokenStore,
+                viewModel = vendorQueueViewModel,
+                onTabSelected = { handleVendorTabSelection(it) },
                 onLogout = {
                     navController.navigate(Route.Login) {
                         popUpTo(0) { inclusive = true }
                     }
                 }
+            )
+        }
+
+        composable<Route.VendorMenu> {
+            VendorMenuScreen(
+                tokenStore = tokenStore,
+                viewModel = vendorMenuViewModel,
+                onTabSelected = { handleVendorTabSelection(it) },
+                onNavigateToSync = {
+                    navController.navigate(Route.VendorProposals)
+                }
+            )
+        }
+
+        composable<Route.VendorCapacity> {
+            VendorCapacityScreen(
+                tokenStore = tokenStore,
+                viewModel = vendorCapacityViewModel,
+                onTabSelected = { handleVendorTabSelection(it) }
+            )
+        }
+
+        composable<Route.VendorProposals> {
+            VendorProposalsScreen(
+                tokenStore = tokenStore,
+                viewModel = vendorProposalsViewModel,
+                onTabSelected = { handleVendorTabSelection(it) }
             )
         }
 

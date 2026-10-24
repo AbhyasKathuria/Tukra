@@ -55,6 +55,41 @@ async function getVendorOutletId(user) {
   return res.rows[0].id;
 }
 
+// GET /vendor/outlet
+router.get('/outlet', auth(['VENDOR', 'ADMIN']), async (req, res, next) => {
+  try {
+    const outletId = await getVendorOutletId(req.user);
+    const result = await query('SELECT * FROM outlets WHERE id = $1', [outletId]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Outlet not found' } });
+    }
+    res.json(toCamelCase(result.rows[0]));
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /vendor/items
+router.get('/items', auth(['VENDOR', 'ADMIN']), async (req, res, next) => {
+  try {
+    const outletId = await getVendorOutletId(req.user);
+    const sql = `
+      SELECT m.id, m.outlet_id, m.category_id, m.name, m.description,
+             m.price_paise, m.is_veg, m.image_url, m.prep_seconds,
+             m.prep_units, m.is_available, m.spice_level,
+             c.name as category_name
+        FROM menu_items m
+   LEFT JOIN categories c ON c.id = m.category_id
+       WHERE m.outlet_id = $1
+       ORDER BY m.name ASC
+    `;
+    const { rows } = await query(sql, [outletId]);
+    res.json(toCamelCase(rows));
+  } catch (err) {
+    next(err);
+  }
+});
+
 // GET /vendor/orders?status=
 router.get('/orders', auth(['VENDOR', 'ADMIN']), async (req, res, next) => {
   const { status } = req.query;
