@@ -17,16 +17,24 @@ import com.xsparks.tukra.feature.auth.RegisterScreen
 import com.xsparks.tukra.feature.cart.CartScreen
 import com.xsparks.tukra.feature.checkout.CheckoutScreen
 import com.xsparks.tukra.feature.checkout.CheckoutViewModel
+import com.xsparks.tukra.feature.history.OrdersHistoryScreen
+import com.xsparks.tukra.feature.history.OrdersViewModel
 import com.xsparks.tukra.feature.home.HomeScreen
 import com.xsparks.tukra.feature.home.HomeViewModel
 import com.xsparks.tukra.feature.menu.MenuViewModel
 import com.xsparks.tukra.feature.menu.OutletMenuScreen
 import com.xsparks.tukra.feature.mess.MessMenuScreen
 import com.xsparks.tukra.feature.onboarding.OnboardingScreen
+import com.xsparks.tukra.feature.profile.ProfileScreen
+import com.xsparks.tukra.feature.profile.ProfileViewModel
+import com.xsparks.tukra.feature.scan.PlateScanScreen
+import com.xsparks.tukra.feature.scan.PlateScanViewModel
 import com.xsparks.tukra.feature.splash.SplashScreen
 import com.xsparks.tukra.feature.tracking.TrackingScreen
 import com.xsparks.tukra.feature.tracking.TrackingViewModel
 import com.xsparks.tukra.feature.vendor.VendorQueueScreen
+import com.xsparks.tukra.feature.wallet.WalletScreen
+import com.xsparks.tukra.feature.wallet.WalletViewModel
 
 @Composable
 fun TukraNavHost(
@@ -37,6 +45,10 @@ fun TukraNavHost(
     val authViewModel = remember { AuthViewModel(tokenStore) }
     val homeViewModel = remember { HomeViewModel(tokenStore) }
     val menuViewModel = remember { MenuViewModel(tokenStore) }
+    val ordersViewModel = remember { OrdersViewModel(tokenStore) }
+    val walletViewModel = remember { WalletViewModel(tokenStore) }
+    val plateScanViewModel = remember { PlateScanViewModel(tokenStore) }
+    val profileViewModel = remember { ProfileViewModel(tokenStore) }
     val cartManager = remember { CartManager.getInstance(context) }
 
     fun navigateForRole(role: String) {
@@ -48,6 +60,20 @@ fun TukraNavHost(
         }
         navController.navigate(destination) {
             popUpTo<Route.Login> { inclusive = true }
+        }
+    }
+
+    fun handleStudentTabSelection(tab: StudentNavTab) {
+        val targetRoute: Route = when (tab) {
+            StudentNavTab.HOME -> Route.StudentHome
+            StudentNavTab.ORDERS -> Route.OrdersHistory
+            StudentNavTab.SCAN -> Route.ScanPlate
+            StudentNavTab.WALLET -> Route.Wallet
+            StudentNavTab.PROFILE -> Route.Profile
+        }
+        navController.navigate(targetRoute) {
+            popUpTo<Route.StudentHome> { inclusive = false }
+            launchSingleTop = true
         }
     }
 
@@ -133,25 +159,10 @@ fun TukraNavHost(
                     navController.navigate(Route.Cart)
                 },
                 onWalletClick = {
-                    // Navigate to wallet or refresh
-                    homeViewModel.refreshHome()
+                    navController.navigate(Route.Wallet)
                 },
                 onTabSelected = { tab ->
-                    when (tab) {
-                        StudentNavTab.HOME -> Unit
-                        StudentNavTab.ORDERS -> {
-                            // Stage 7 Orders
-                        }
-                        StudentNavTab.SCAN -> {
-                            // Stage 7 Scan
-                        }
-                        StudentNavTab.WALLET -> {
-                            // Stage 7 Wallet
-                        }
-                        StudentNavTab.PROFILE -> {
-                            // Stage 7 Profile
-                        }
-                    }
+                    handleStudentTabSelection(tab)
                 }
             )
         }
@@ -212,6 +223,54 @@ fun TukraNavHost(
                     navController.navigate(Route.StudentHome) {
                         popUpTo<Route.StudentHome> { inclusive = true }
                     }
+                }
+            )
+        }
+
+        composable<Route.OrdersHistory> {
+            OrdersHistoryScreen(
+                tokenStore = tokenStore,
+                viewModel = ordersViewModel,
+                onOrderClick = { orderId ->
+                    navController.navigate(Route.Tracking(orderId))
+                },
+                onTabSelected = { tab ->
+                    handleStudentTabSelection(tab)
+                }
+            )
+        }
+
+        composable<Route.Wallet> {
+            WalletScreen(
+                tokenStore = tokenStore,
+                viewModel = walletViewModel,
+                onTabSelected = { tab ->
+                    handleStudentTabSelection(tab)
+                }
+            )
+        }
+
+        composable<Route.ScanPlate> {
+            PlateScanScreen(
+                tokenStore = tokenStore,
+                viewModel = plateScanViewModel,
+                onTabSelected = { tab ->
+                    handleStudentTabSelection(tab)
+                }
+            )
+        }
+
+        composable<Route.Profile> {
+            ProfileScreen(
+                tokenStore = tokenStore,
+                viewModel = profileViewModel,
+                onLogout = {
+                    navController.navigate(Route.Login) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                },
+                onTabSelected = { tab ->
+                    handleStudentTabSelection(tab)
                 }
             )
         }
