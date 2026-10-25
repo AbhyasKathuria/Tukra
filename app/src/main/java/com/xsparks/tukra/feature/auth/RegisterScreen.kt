@@ -1,5 +1,6 @@
 package com.xsparks.tukra.feature.auth
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -44,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -51,6 +53,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.xsparks.tukra.R
 import com.xsparks.tukra.core.designsystem.Danger
 import com.xsparks.tukra.core.designsystem.Ink
 import com.xsparks.tukra.core.designsystem.InkSoft
@@ -93,6 +96,16 @@ fun RegisterScreen(
             .padding(24.dp),
         horizontalAlignment = Alignment.Start
     ) {
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Brand Logo
+        Image(
+            painter = painterResource(id = R.drawable.ic_tukra_logo),
+            contentDescription = "Tukra Logo",
+            modifier = Modifier
+                .height(44.dp)
+        )
+
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
