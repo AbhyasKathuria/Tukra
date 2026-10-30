@@ -5,7 +5,12 @@
 **Team:** Xsparks  
 **Hackathon:** Swim with TinyFish Hackathon, Presidency University, Bengaluru (Fri 30 Oct 2026)  
 **Platform:** Android (Kotlin, Jetpack Compose, Material 3, minSdk 26, targetSdk 37) + Node.js Backend (Express, PostgreSQL, TinyFish Client)  
-**Live Production API:** `https://tukra.vercel.app`
+**Live Production API:** `https://tukra.vercel.app`  
+**GitHub Repository:** `https://github.com/AbhyasKathuria/Tukra`  
+**Latest Android APK (v1.0.0):** [Download app-debug.apk](https://github.com/AbhyasKathuria/Tukra/releases/download/v1.0.0-hackathon/app-debug.apk)
+
+[![Download APK](https://img.shields.io/badge/Download_APK-v1.0.0--hackathon-FF4D6D?style=for-the-badge&logo=android&logoColor=white)](https://github.com/AbhyasKathuria/Tukra/releases/download/v1.0.0-hackathon/app-debug.apk)
+[![GitHub Release](https://img.shields.io/github/v/release/AbhyasKathuria/Tukra?style=for-the-badge&color=FF85A1)](https://github.com/AbhyasKathuria/Tukra/releases/tag/v1.0.0-hackathon)
 
 ---
 
@@ -43,7 +48,8 @@ Campus canteens and hostel messes face two chronic, daily crises:
 - **Capacity Controls:** Limit maximum orders per 5-minute slot to stop kitchen overwhelm during peak breaks.
 
 ### 🍱 Mess Operator Profile (Hostel Mess)
-- **Weekly Mess Menu:** Publishes breakfast, lunch, high-tea, and dinner menus for hostel residents.
+- **Built-in Camera QR & Barcode Scanner:** Real-time CameraX scanner instantly verifies student dynamic Mess Entry Passes (showing name, college email, roll number, hostel room, and active meal window) and activates smart plate sessions directly on the counter.
+- **Weekly Mess Menu:** Publishes breakfast, lunch, high-tea, and dinner menus for hostel residents with real-time menu swapping.
 - **Live Plate & Meal Counter:** Tracks how many students have eaten in real-time versus booked reservations.
 - **Demand Forecasting & Waste Prevention:** Monitors reservation cancellations ahead of cut-off times to reduce food waste.
 - **🐟 Dish Doctor:** Identifies the week's most-disliked mess items with student reasons and competitor price benchmarks to help decide whether to improve or replace recipes.
