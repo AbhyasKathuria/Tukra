@@ -80,7 +80,7 @@ router.post('/register', validate(registerSchema), async (req, res, next) => {
         campusId: newUser.campus_id
       },
       config.JWT_SECRET,
-      { expiresIn: '12h' }
+      { expiresIn: '30d' }
     );
 
     res.status(201).json({
@@ -184,7 +184,7 @@ router.post('/login', validate(loginSchema), async (req, res, next) => {
       ...(outletId ? { outletId } : {})
     };
 
-    const token = jwt.sign(tokenPayload, config.JWT_SECRET, { expiresIn: '12h' });
+    const token = jwt.sign(tokenPayload, config.JWT_SECRET, { expiresIn: '30d' });
 
     const safeUser = {
       id: user.id,

@@ -34,7 +34,8 @@ data class VendorQueueUiState(
     val isActionLoading: Boolean = false,
     val errorMessage: String? = null,
     val actionSuccessMessage: String? = null,
-    val pendingProposalsCount: Int = 0
+    val pendingProposalsCount: Int = 0,
+    val isAuthError: Boolean = false
 )
 
 class VendorQueueViewModel(
@@ -94,11 +95,22 @@ class VendorQueueViewModel(
                     orders = orders,
                     filteredOrders = filterOrders(orders, state.selectedTab),
                     isLoading = false,
-                    errorMessage = null
+                    errorMessage = null,
+                    isAuthError = false
                 )
             }
         } catch (e: Exception) {
-            _uiState.update { it.copy(isLoading = false, errorMessage = e.message) }
+            val isAuth = e.message?.contains("401") == true || e.message?.contains("Unauthenticated") == true
+            if (isAuth) {
+                stopPolling()
+            }
+            _uiState.update {
+                it.copy(
+                    isLoading = false,
+                    isAuthError = isAuth,
+                    errorMessage = if (isAuth) "Session expired or invalid login. Please re-login." else e.message
+                )
+            }
         }
     }
 

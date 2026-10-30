@@ -12,6 +12,10 @@ class AuthInterceptor(private val tokenStore: TokenStore) : Interceptor {
         cachedToken = token
     }
 
+    fun clearToken() {
+        cachedToken = null
+    }
+
     override fun intercept(chain: Interceptor.Chain): Response {
         val original = chain.request()
 
@@ -27,6 +31,11 @@ class AuthInterceptor(private val tokenStore: TokenStore) : Interceptor {
             original
         }
 
-        return chain.proceed(request)
+        val response = chain.proceed(request)
+        if (response.code == 401) {
+            // Invalidate stale or expired token
+            clearToken()
+        }
+        return response
     }
 }

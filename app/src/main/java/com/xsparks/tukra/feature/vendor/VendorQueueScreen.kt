@@ -249,6 +249,53 @@ fun VendorQueueScreen(
 
             Divider(color = OutlineWarm, thickness = 1.dp)
 
+            if (uiState.isAuthError) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Danger.copy(alpha = 0.1f))
+                        .border(1.dp, Danger.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                        .padding(16.dp)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            text = "Vendor Session Expired",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp,
+                            color = Danger
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "Please log in again as Vendor to manage orders.",
+                            fontSize = 12.sp,
+                            color = InkSoft
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(TukraPink)
+                                .clickable {
+                                    scope.launch {
+                                        tokenStore.clearSession()
+                                        onLogout()
+                                    }
+                                }
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                        ) {
+                            Text(
+                                text = "Log In Again",
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 13.sp
+                            )
+                        }
+                    }
+                }
+            }
+
             // Orders list
             if (uiState.filteredOrders.isEmpty()) {
                 Box(

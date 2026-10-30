@@ -81,7 +81,14 @@ class TokenStore(private val context: Context) {
 
     suspend fun clearSession() {
         context.dataStore.edit { prefs ->
-            prefs.clear()
+            prefs.remove(KEY_TOKEN)
+            prefs.remove(KEY_USER_ID)
+            prefs.remove(KEY_USER_NAME)
+            prefs.remove(KEY_USER_EMAIL)
+            prefs.remove(KEY_USER_ROLE)
+            prefs.remove(KEY_CAMPUS_ID)
+            prefs.remove(KEY_OUTLET_ID)
         }
+        NetworkClient.getAuthInterceptor(this).clearToken()
     }
 }

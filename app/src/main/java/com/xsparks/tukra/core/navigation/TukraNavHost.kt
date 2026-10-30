@@ -2,7 +2,9 @@ package com.xsparks.tukra.core.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.launch
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -83,6 +85,16 @@ fun TukraNavHost(
     val messCounterViewModel = remember { MessCounterViewModel(tokenStore) }
     val adminViewModel = remember { AdminViewModel(tokenStore) }
     val cartManager = remember { CartManager.getInstance(context) }
+    val scope = rememberCoroutineScope()
+
+    fun performLogout() {
+        scope.launch {
+            tokenStore.clearSession()
+            navController.navigate(Route.Login) {
+                popUpTo(0) { inclusive = true }
+            }
+        }
+    }
 
     fun navigateForRole(role: String) {
         val destination: Route = when (role.uppercase()) {
@@ -347,11 +359,7 @@ fun TukraNavHost(
             ProfileScreen(
                 tokenStore = tokenStore,
                 viewModel = profileViewModel,
-                onLogout = {
-                    navController.navigate(Route.Login) {
-                        popUpTo(0) { inclusive = true }
-                    }
-                },
+                onLogout = { performLogout() },
                 onTabSelected = { tab ->
                     handleStudentTabSelection(tab)
                 },
@@ -390,11 +398,7 @@ fun TukraNavHost(
                 tokenStore = tokenStore,
                 viewModel = vendorQueueViewModel,
                 onTabSelected = { handleVendorTabSelection(it) },
-                onLogout = {
-                    navController.navigate(Route.Login) {
-                        popUpTo(0) { inclusive = true }
-                    }
-                }
+                onLogout = { performLogout() }
             )
         }
 
@@ -431,11 +435,7 @@ fun TukraNavHost(
                 tokenStore = tokenStore,
                 viewModel = messMenuViewModel,
                 onTabSelected = { handleMessTabSelection(it) },
-                onLogout = {
-                    navController.navigate(Route.Login) {
-                        popUpTo(0) { inclusive = true }
-                    }
-                }
+                onLogout = { performLogout() }
             )
         }
 
@@ -461,11 +461,7 @@ fun TukraNavHost(
                 tokenStore = tokenStore,
                 viewModel = adminViewModel,
                 onTabSelected = { handleAdminTabSelection(it) },
-                onLogout = {
-                    navController.navigate(Route.Login) {
-                        popUpTo(0) { inclusive = true }
-                    }
-                },
+                onLogout = { performLogout() },
                 onViewAgentConsole = {
                     navController.navigate(Route.AgentConsole)
                 },

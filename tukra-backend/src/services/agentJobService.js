@@ -329,6 +329,10 @@ export async function runAgentJob({
 
     for (let keyIdx = 0; keyIdx < availableKeys.length; keyIdx++) {
       const activeKey = availableKeys[keyIdx];
+      const abortController = new AbortController();
+      const timeoutMs = Math.min((maxSeconds || 8) * 1000, 7500);
+      const timeoutId = setTimeout(() => abortController.abort(), timeoutMs);
+
       try {
         const res = await fetch(`${TINYFISH_BASE_URL}/automation/run-sse`, {
           method: 'POST',
@@ -336,7 +340,8 @@ export async function runAgentJob({
             'Content-Type': 'application/json',
             'X-API-Key': activeKey
           },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload),
+          signal: abortController.signal
         });
 
         if (res.ok) {
@@ -394,6 +399,8 @@ export async function runAgentJob({
         if (isLastKey) {
           console.warn(`[TINYFISH LIVE NOTICE] Live agent encountered: ${err.message}. Engaging resilient demo fallback.`);
         }
+      } finally {
+        clearTimeout(timeoutId);
       }
     }
   }
