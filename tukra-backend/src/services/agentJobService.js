@@ -5,6 +5,21 @@ import { AppError } from '../middleware/error.js';
 
 const TINYFISH_BASE_URL = 'https://agent.tinyfish.ai/v1';
 
+export function getTinyFishApiKeys() {
+  const keys = [];
+  if (config.TINYFISH_API_KEY && config.TINYFISH_API_KEY.startsWith('sk-tinyfish')) {
+    keys.push(config.TINYFISH_API_KEY);
+  }
+  if (
+    config.TINYFISH_BACKUP_API_KEY &&
+    config.TINYFISH_BACKUP_API_KEY.startsWith('sk-tinyfish') &&
+    !keys.includes(config.TINYFISH_BACKUP_API_KEY)
+  ) {
+    keys.push(config.TINYFISH_BACKUP_API_KEY);
+  }
+  return keys;
+}
+
 // In-memory fallback and fast-path cache
 const memoryJobs = new Map();
 const memoryCache = new Map();
@@ -301,73 +316,85 @@ export async function runAgentJob({
   let runId = null;
   let streamingUrl = null;
 
-  if (!isRunningTests && config.TINYFISH_API_KEY && config.TINYFISH_API_KEY.startsWith('sk-tinyfish')) {
+  const availableKeys = getTinyFishApiKeys();
+  if (!isRunningTests && availableKeys.length > 0) {
     dailyRunCount++;
-    try {
-      const payload = {
-        url: url || 'https://www.eatsure.com',
-        goal: `${goal || 'Extract food items and prices'}. Never click order, pay, or login buttons.`,
-        output_schema: schema || { type: 'object' },
-        browser_profile: 'lite',
-        agent_config: { max_duration_seconds: maxSeconds }
-      };
+    const payload = {
+      url: url || 'https://www.eatsure.com',
+      goal: `${goal || 'Extract food items and prices'}. Never click order, pay, or login buttons.`,
+      output_schema: schema || { type: 'object' },
+      browser_profile: 'lite',
+      agent_config: { max_duration_seconds: maxSeconds }
+    };
 
-      const res = await fetch(`${TINYFISH_BASE_URL}/automation/run-sse`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-API-Key': config.TINYFISH_API_KEY
-        },
-        body: JSON.stringify(payload)
-      });
+    for (let keyIdx = 0; keyIdx < availableKeys.length; keyIdx++) {
+      const activeKey = availableKeys[keyIdx];
+      try {
+        const res = await fetch(`${TINYFISH_BASE_URL}/automation/run-sse`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-API-Key': activeKey
+          },
+          body: JSON.stringify(payload)
+        });
 
-      if (res.ok) {
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder('utf-8');
-        let buffer = '';
+        if (res.ok) {
+          const reader = res.body.getReader();
+          const decoder = new TextDecoder('utf-8');
+          let buffer = '';
 
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
 
-          buffer += decoder.decode(value, { stream: true });
-          const events = buffer.split('\n\n');
-          buffer = events.pop();
+            buffer += decoder.decode(value, { stream: true });
+            const events = buffer.split('\n\n');
+            buffer = events.pop();
 
-          for (const rawEvent of events) {
-            const lines = rawEvent.split('\n');
-            let eventType = null;
-            let eventData = null;
+            for (const rawEvent of events) {
+              const lines = rawEvent.split('\n');
+              let eventType = null;
+              let eventData = null;
 
-            for (const line of lines) {
-              if (line.startsWith('event:')) eventType = line.slice(6).trim();
-              if (line.startsWith('data:')) {
-                try {
-                  eventData = JSON.parse(line.slice(5).trim());
-                } catch {
-                  eventData = line.slice(5).trim();
+              for (const line of lines) {
+                if (line.startsWith('event:')) eventType = line.slice(6).trim();
+                if (line.startsWith('data:')) {
+                  try {
+                    eventData = JSON.parse(line.slice(5).trim());
+                  } catch {
+                    eventData = line.slice(5).trim();
+                  }
                 }
               }
-            }
 
-            if (eventType === 'STARTED' && eventData?.run_id) {
-              runId = eventData.run_id;
-              initialJob.tinyfishRunId = runId;
-            } else if (eventType === 'STREAMING_URL' && eventData?.streaming_url) {
-              streamingUrl = eventData.streaming_url;
-              initialJob.streamingUrl = streamingUrl;
-            } else if (eventType === 'COMPLETE') {
-              finalResult = eventData?.result || eventData;
-              break;
+              if (eventType === 'STARTED' && eventData?.run_id) {
+                runId = eventData.run_id;
+                initialJob.tinyfishRunId = runId;
+              } else if (eventType === 'STREAMING_URL' && eventData?.streaming_url) {
+                streamingUrl = eventData.streaming_url;
+                initialJob.streamingUrl = streamingUrl;
+              } else if (eventType === 'COMPLETE') {
+                finalResult = eventData?.result || eventData;
+                break;
+              }
             }
           }
+          if (finalResult) break; // Successfully got result from TinyFish
+        } else {
+          const isLastKey = keyIdx === availableKeys.length - 1;
+          console.warn(`[TINYFISH API NOTICE] Key ${keyIdx + 1}/${availableKeys.length} returned HTTP ${res.status}.${isLastKey ? '' : ' Switching to backup key...'}`);
+          if (isLastKey) {
+            throw new Error(`TinyFish returned HTTP ${res.status}`);
+          }
         }
-      } else {
-        throw new Error(`TinyFish returned HTTP ${res.status}`);
+      } catch (err) {
+        finalError = err.message;
+        const isLastKey = keyIdx === availableKeys.length - 1;
+        if (isLastKey) {
+          console.warn(`[TINYFISH LIVE NOTICE] Live agent encountered: ${err.message}. Engaging resilient demo fallback.`);
+        }
       }
-    } catch (err) {
-      console.warn(`[TINYFISH LIVE NOTICE] Live agent encountered: ${err.message}. Engaging resilient demo fallback.`);
-      finalError = err.message;
     }
   }
 

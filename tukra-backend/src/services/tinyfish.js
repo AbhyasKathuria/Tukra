@@ -79,14 +79,30 @@ export function extractItems(resultPayload) {
   return items;
 }
 
+export function getTinyFishApiKeys() {
+  const keys = [];
+  if (config.TINYFISH_API_KEY && config.TINYFISH_API_KEY.startsWith('sk-tinyfish')) {
+    keys.push(config.TINYFISH_API_KEY);
+  }
+  if (
+    config.TINYFISH_BACKUP_API_KEY &&
+    config.TINYFISH_BACKUP_API_KEY.startsWith('sk-tinyfish') &&
+    !keys.includes(config.TINYFISH_BACKUP_API_KEY)
+  ) {
+    keys.push(config.TINYFISH_BACKUP_API_KEY);
+  }
+  return keys;
+}
+
 /**
  * Polls run status as fallback if the SSE stream drops.
  */
-export async function pollRun(runId, maxSeconds = 180) {
+export async function pollRun(runId, maxSeconds = 180, apiKey = null) {
+  const activeKey = apiKey || getTinyFishApiKeys()[0] || config.TINYFISH_API_KEY;
   const startTime = Date.now();
   const headers = {
     'Content-Type': 'application/json',
-    'X-API-Key': config.TINYFISH_API_KEY
+    'X-API-Key': activeKey
   };
 
   while (Date.now() - startTime < maxSeconds * 1000) {
@@ -115,7 +131,8 @@ export async function pollRun(runId, maxSeconds = 180) {
  * Executes a TinyFish autonomous menu synchronization task via SSE.
  */
 export async function runTinyFishSync(targetUrl, { onStarted, onStreamingUrl, onProgress, onComplete, onError }) {
-  if (!config.TINYFISH_API_KEY) {
+  const availableKeys = getTinyFishApiKeys();
+  if (availableKeys.length === 0) {
     const errorMsg = 'TinyFish API key is not configured';
     if (onError) onError(new AppError('TINYFISH_NOT_CONFIGURED', errorMsg, 400));
     return;
@@ -131,38 +148,64 @@ export async function runTinyFishSync(targetUrl, { onStarted, onStreamingUrl, on
     }
   };
 
-  const headers = {
-    'Content-Type': 'application/json',
-    'X-API-Key': config.TINYFISH_API_KEY
-  };
-
   let runId = null;
   let isComplete = false;
 
-  async function executeRequest(retryAllowed = true) {
-    const response = await fetch(`${TINYFISH_BASE_URL}/automation/run-sse`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(payload)
-    });
+  async function executeRequest() {
+    let lastErr = null;
+    for (let i = 0; i < availableKeys.length; i++) {
+      const activeKey = availableKeys[i];
+      const headers = {
+        'Content-Type': 'application/json',
+        'X-API-Key': activeKey
+      };
 
-    if (response.status === 401) {
-      console.error('[TINYFISH AUTH ERROR] 401 Unauthorized with provided API key.');
-      throw new AppError('UNAUTHENTICATED', 'Menu sync is not available right now', 401);
+      try {
+        const response = await fetch(`${TINYFISH_BASE_URL}/automation/run-sse`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(payload)
+        });
+
+        if (response.status === 401) {
+          console.error(`[TINYFISH AUTH ERROR] 401 Unauthorized with key index ${i}.`);
+          if (i + 1 < availableKeys.length) {
+            console.log(`[TINYFISH FAILOVER] Switching to backup key...`);
+            continue;
+          }
+          throw new AppError('UNAUTHENTICATED', 'Menu sync is not available right now', 401);
+        }
+
+        if (response.status === 429) {
+          console.warn(`[TINYFISH RATE LIMIT] 429 received on key index ${i}.`);
+          if (i + 1 < availableKeys.length) {
+            console.log(`[TINYFISH FAILOVER] Switching to backup key...`);
+            continue;
+          }
+          await new Promise((r) => setTimeout(r, 10000));
+          // Retry once on last key
+          const retryRes = await fetch(`${TINYFISH_BASE_URL}/automation/run-sse`, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(payload)
+          });
+          if (retryRes.ok) return retryRes;
+        }
+
+        if (!response.ok) {
+          const errText = await response.text();
+          throw new Error(`TinyFish API request failed with status ${response.status}: ${errText}`);
+        }
+
+        return response;
+      } catch (err) {
+        lastErr = err;
+        if (i + 1 < availableKeys.length) {
+          console.warn(`[TINYFISH BACKUP NOTICE] Key ${i + 1} failed: ${err.message}. Trying backup key...`);
+        }
+      }
     }
-
-    if (response.status === 429 && retryAllowed) {
-      console.warn('[TINYFISH RATE LIMIT] 429 received. Backing off 10s and retrying once...');
-      await new Promise((r) => setTimeout(r, 10000));
-      return executeRequest(false);
-    }
-
-    if (!response.ok) {
-      const errText = await response.text();
-      throw new Error(`TinyFish API request failed with status ${response.status}: ${errText}`);
-    }
-
-    return response;
+    throw lastErr || new Error('All TinyFish API keys failed');
   }
 
   try {

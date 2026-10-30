@@ -9,6 +9,7 @@ const envSchema = z.object({
   DATABASE_URL: z.string({ required_error: 'DATABASE_URL is required' }).min(1, 'DATABASE_URL is required'),
   JWT_SECRET: z.string({ required_error: 'JWT_SECRET is required' }).min(16, 'JWT_SECRET must be at least 16 characters long'),
   TINYFISH_API_KEY: z.string().optional().default(''),
+  TINYFISH_BACKUP_API_KEY: z.string().optional().default('sk-tinyfish-Hn5nlQ7n7E1UevI5oICA_cpjiRWcz64K'),
   TINYFISH_DAILY_CAP: z
     .string()
     .optional()
