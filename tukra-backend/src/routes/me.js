@@ -21,6 +21,10 @@ router.get('/', auth(), async (req, res, next) => {
   try {
     const userRes = await query(
       `SELECT u.id, u.campus_id, u.name, u.email, u.phone, u.role, u.hostel, u.diet_pref,
+              u.roll_number, u.department, u.degree_year, u.room_number, u.rfid_card_id,
+              COALESCE(u.green_credits, 420) as green_credits,
+              COALESCE(u.clean_streak_days, 14) as clean_streak_days,
+              COALESCE(u.food_saved_kg, 4.20) as food_saved_kg,
               COALESCE(w.balance_paise, 0) as balance_paise
          FROM users u
     LEFT JOIN wallets w ON w.user_id = u.id

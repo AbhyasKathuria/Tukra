@@ -25,9 +25,9 @@
     "pg": "^8.18.0",
     "qrcode": "^1.5.4",
     "razorpay": "^2.9.6",
+    "xlsx": "^0.18.5",
     "zod": "^4.3.6"
   },
-  "devDependencies": {},
   "engines": {
     "node": ">=20.0.0"
   }

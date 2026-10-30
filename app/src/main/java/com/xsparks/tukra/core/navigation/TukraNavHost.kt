@@ -38,6 +38,7 @@ import com.xsparks.tukra.feature.mess.MessMenuScreen
 import com.xsparks.tukra.feature.mess.MessMenuViewModel
 import com.xsparks.tukra.feature.mess.MessReservationsScreen
 import com.xsparks.tukra.feature.mess.MessReservationsViewModel
+import com.xsparks.tukra.feature.mess.HostelMessScreen
 import com.xsparks.tukra.feature.onboarding.OnboardingScreen
 import com.xsparks.tukra.feature.profile.ProfileScreen
 import com.xsparks.tukra.feature.profile.ProfileViewModel
@@ -230,6 +231,9 @@ fun TukraNavHost(
                 },
                 onTabSelected = { tab ->
                     handleStudentTabSelection(tab)
+                },
+                onHostelMessClick = {
+                    navController.navigate(Route.HostelMess)
                 }
             )
         }
@@ -339,6 +343,14 @@ fun TukraNavHost(
                 onTabSelected = { tab ->
                     handleStudentTabSelection(tab)
                 }
+            )
+        }
+
+        composable<Route.HostelMess> {
+            HostelMessScreen(
+                tokenStore = tokenStore,
+                onBackClick = { navController.popBackStack() },
+                onTabSelected = { tab -> handleStudentTabSelection(tab) }
             )
         }
 

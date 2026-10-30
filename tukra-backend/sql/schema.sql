@@ -18,9 +18,27 @@ CREATE TABLE IF NOT EXISTS users (
   role TEXT NOT NULL CHECK (role IN ('STUDENT','STAFF','VENDOR','MESS_OPERATOR','ADMIN')),
   hostel TEXT,
   diet_pref TEXT NOT NULL DEFAULT 'ANY' CHECK (diet_pref IN ('ANY','VEG','JAIN','EGG')),
+  roll_number TEXT,
+  department TEXT,
+  degree_year TEXT,
+  room_number TEXT,
+  rfid_card_id TEXT,
+  green_credits INT NOT NULL DEFAULT 420,
+  clean_streak_days INT NOT NULL DEFAULT 14,
+  food_saved_kg NUMERIC(5,2) NOT NULL DEFAULT 4.20,
   deleted_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- Backwards-compatible columns for existing databases
+ALTER TABLE users ADD COLUMN IF NOT EXISTS roll_number TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS department TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS degree_year TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS room_number TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS rfid_card_id TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS green_credits INT NOT NULL DEFAULT 420;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS clean_streak_days INT NOT NULL DEFAULT 14;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS food_saved_kg NUMERIC(5,2) NOT NULL DEFAULT 4.20;
 
 CREATE TABLE IF NOT EXISTS outlets (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

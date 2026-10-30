@@ -37,14 +37,23 @@ interface TukraApi {
     @GET("campus")
     suspend fun getCampus(): CampusDto
 
+    @GET("campus/demo-data")
+    suspend fun getCampusDemoData(): CampusDemoDataResponse
+
     @GET("outlets")
     suspend fun getOutlets(): List<OutletDto>
 
     @GET("outlets/{id}/menu")
     suspend fun getOutletMenu(
         @Path("id") outletId: String,
-        @Query("diet") diet: String? = null
+        @Query("diet") diet: String? = null,
+        @Query("quickBite") quickBite: Boolean? = null
     ): MenuResponse
+
+    @GET("outlets/{id}/live-options")
+    suspend fun getLiveOptions(
+        @Path("id") outletId: String
+    ): LiveOptionsResponse
 
     @GET("outlets/{id}/slots")
     suspend fun getOutletSlots(
@@ -128,7 +137,19 @@ interface TukraApi {
     @POST("vendor/proposals/approve-all")
     suspend fun approveAllProposals(): ApproveAllResponse
 
+    @GET("vendor/menu/swap-suggestions")
+    suspend fun getSwapSuggestions(): SwapSuggestionsResponse
+
+    @POST("vendor/menu/swap-exchange")
+    suspend fun swapExchange(@Body body: SwapExchangeRequest): SwapExchangeResponse
+
     // --- Plate & Mess ---
+    @GET("plate/live-stats")
+    suspend fun getLivePlateStats(): LivePlateStatsDto
+
+    @POST("plate/scan-dish-ai")
+    suspend fun scanDishAi(@Body body: ScanDishRequest): ScanDishResponse
+
     @POST("plate/open")
     suspend fun openPlateSession(@Body body: PlateOpenRequest): PlateSessionDto
 
@@ -149,6 +170,9 @@ interface TukraApi {
 
     @POST("plate/{id}/pay")
     suspend fun payPlateSession(@Path("id") plateId: String): PlateSessionDto
+
+    @GET("mess/hostel-dashboard")
+    suspend fun getHostelDashboard(): HostelDashboardDto
 
     @GET("mess/menu")
     suspend fun getMessMenu(

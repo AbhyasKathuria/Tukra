@@ -1,0 +1,23 @@
+outlet_name,dish_name,category,food_type,is_veg,is_quick_bite,price_rupees,prep_time_mins,prep_units,spice_level,live_stock_portions,calories_approx,description
+South Tiffin,Masala Dosa,Tiffin & Dosas,🟢 VEG,TRUE,FALSE,70,3,2,1,18,320,"Crispy fermented rice crepe loaded with tempered spiced potato mash, served with coconut chutney & drumstick sambar"
+South Tiffin,Idli Vada Combo,Quick Bites,🟢 VEG,TRUE,TRUE,55,2,1,0,24,250,2 fluffy steamed idlis + 1 crispy medu vada with hot sambar and fresh chutney
+South Tiffin,Onion Uttapam,Tiffin & Dosas,🟢 VEG,TRUE,FALSE,65,4,2,1,10,280,"Thick savory pancake topped with caramelized shallots, green chillies, and coriander"
+South Tiffin,Filter Coffee,Quick Bites,🟢 VEG,TRUE,TRUE,25,1,1,0,45,95,Authentic South Indian brass-filter decoction brewed with frothy whole milk
+South Tiffin,Curd Rice,Quick Bites,🟢 VEG,TRUE,TRUE,50,1,1,0,15,210,"Tempered yogurt rice with mustard seeds, curry leaves, pomegranate seeds, and ginger"
+Chaat Corner,Pani Puri (6 pcs),Quick Bites,🟢 VEG,TRUE,TRUE,40,1,1,2,30,180,Crisp hollow puris filled with spiced potato-chana mash and ice-chilled mint hing water
+Chaat Corner,Vada Pav,Quick Bites,🟢 VEG,TRUE,TRUE,30,1,1,2,22,290,Mumbai spiced potato fritter in butter-toasted pav with dry garlic coconut chutney
+Chaat Corner,Pav Bhaji,Hot Snacks,🟢 VEG,TRUE,FALSE,80,4,2,2,16,420,Slow-simmered butter-mashed spiced vegetable curry served with 2 warm butter pavs
+Chaat Corner,Chicken Frankie Roll,Non-Veg Specials,🔴 NON-VEG,FALSE,TRUE,85,3,1,2,14,380,"Egg-layered paratha wrapped with juicy spiced chicken tikka strips, mint mayo, and onions"
+Chaat Corner,Egg Bhurji Pav,Non-Veg Specials,🔴 NON-VEG,FALSE,TRUE,65,3,1,2,12,340,"Double egg spiced scramble tossed with onions, green chillies, and tomatoes with 2 pavs"
+Chaat Corner,Masala Maggi,Quick Bites,🟢 VEG,TRUE,TRUE,45,3,1,2,35,310,"Campus comfort noodles tossed with sweet corn, capsicum, butter, and extra magic tastemaker"
+Juice Junction,Sweet Lime (Mosambi) Juice,Quick Bites,🟢 VEG,TRUE,TRUE,50,2,1,0,25,120,Freshly cold-pressed mosambi juice with rock salt and roasted jeera
+Juice Junction,Mango Lassi,Quick Bites,🟢 VEG,TRUE,TRUE,60,2,1,0,20,240,Creamy sweet curd blended with real Alphonso mango pulp and cardamom
+Juice Junction,Cold Coffee with Ice Cream,Quick Bites,🟢 VEG,TRUE,TRUE,75,2,2,0,18,280,Rich dark blended cold espresso topped with a generous scoop of vanilla ice cream
+Hostel Mess & Dining,Deluxe Lunch Thali,Meals & Thalis,🟢 VEG,TRUE,FALSE,95,2,2,1,40,680,"Dal makhani, paneer butter masala, dry seasonal sabzi, 3 hot rotis, basmati rice, salad & gulab jamun"
+Hostel Mess & Dining,Chicken Dum Biryani (Special),Non-Veg Specials,🔴 NON-VEG,FALSE,FALSE,130,4,3,2,25,740,"Aromatic layered basmati rice with tender spiced chicken, boiled egg, mirchi ka salan, and raita"
+Hostel Mess & Dining,Egg Curry with Jeera Rice,Non-Veg Specials,🔴 NON-VEG,FALSE,FALSE,80,3,2,2,18,510,2 golden shallow-fried eggs in robust homestyle onion-tomato gravy with fragrant cumin rice
+Hostel Mess & Dining,Rajma Chawal Bowl,Meals & Thalis,🟢 VEG,TRUE,FALSE,65,2,1,1,22,450,Jammu red kidney beans slow-cooked in rich ginger-tomato masala over steaming rice
+Hostel Mess & Dining,Aloo Paratha with Curd,Meals & Thalis,🟢 VEG,TRUE,FALSE,50,3,2,1,20,380,Tawa-toasted spiced potato stuffed whole wheat paratha with fresh set curd and mango pickle
+Presidency Campus Diner,Butter Chicken Rice Bowl,Non-Veg Specials,🔴 NON-VEG,FALSE,FALSE,120,4,2,1,15,620,Boneless tandoori chicken cooked in creamy tomato butter gravy poured over fragrant jeera rice
+Presidency Campus Diner,Crispy Veg Burger,Quick Bites,🟢 VEG,TRUE,TRUE,60,3,1,1,28,390,"Crunchy herb potato patty with lettuce, tomatoes, creamy house mayo in a toasted sesame bun"
+Presidency Campus Diner,Chicken Popcorn (Box),Quick Bites,🔴 NON-VEG,FALSE,TRUE,75,2,1,1,20,340,Bite-sized crispy spiced chicken chunks served with chili garlic dip

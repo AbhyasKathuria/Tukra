@@ -134,12 +134,100 @@ fun OutletMenuScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
+            // Live Options Count Badge powered by TinyFish (Point 7)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color(0xFFF9F9F9))
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(Color(0xFF06D6A0))
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "${uiState.liveOptionsCount} Live Options Synced with TinyFish",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Ink
+                        )
+                    }
+                    Text(
+                        text = "Real-time kitchen stock",
+                        fontSize = 11.sp,
+                        color = InkSoft
+                    )
+                }
+            }
+
+            // Dietary & Quick Bites Filter Chips (Point 5 & 6)
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 6.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                item {
+                    FilterChip(
+                        selected = uiState.dietFilter == "ALL",
+                        onClick = { viewModel.setDietFilter("ALL") },
+                        label = { Text("All", fontSize = 12.sp) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = TukraPink,
+                            selectedLabelColor = Ink
+                        )
+                    )
+                }
+                item {
+                    FilterChip(
+                        selected = uiState.dietFilter == "VEG",
+                        onClick = { viewModel.setDietFilter(if (uiState.dietFilter == "VEG") "ALL" else "VEG") },
+                        label = { Text("🟢 Pure Veg", fontSize = 12.sp, fontWeight = FontWeight.SemiBold) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = Color(0xFFD4EDDA),
+                            selectedLabelColor = Color(0xFF155724)
+                        )
+                    )
+                }
+                item {
+                    FilterChip(
+                        selected = uiState.dietFilter == "NON_VEG",
+                        onClick = { viewModel.setDietFilter(if (uiState.dietFilter == "NON_VEG") "ALL" else "NON_VEG") },
+                        label = { Text("🔴 Non-Veg", fontSize = 12.sp, fontWeight = FontWeight.SemiBold) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = Color(0xFFF8D7DA),
+                            selectedLabelColor = Color(0xFF721C24)
+                        )
+                    )
+                }
+                item {
+                    FilterChip(
+                        selected = uiState.quickBiteFilter,
+                        onClick = { viewModel.toggleQuickBites() },
+                        label = { Text("⚡ Quick Bites (<3m)", fontSize = 12.sp, fontWeight = FontWeight.Bold) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = Color(0xFFFFEECC),
+                            selectedLabelColor = Color(0xFFB45309)
+                        )
+                    )
+                }
+            }
+
             // Category Tabs
             if (uiState.categories.isNotEmpty()) {
                 LazyRow(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 6.dp),
+                        .padding(horizontal = 16.dp, vertical = 4.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(uiState.categories) { category ->
@@ -181,10 +269,13 @@ fun OutletMenuScreen(
                 }
             } else if (uiState.items.isEmpty()) {
                 EmptyState(
-                    title = "Menu unavailable",
-                    message = uiState.errorMessage ?: "No dishes found for this outlet.",
-                    actionButtonText = "Go back",
-                    onActionClick = onBackClick
+                    title = "No dishes found",
+                    message = uiState.errorMessage ?: "Try changing your dietary or quick-bites filters.",
+                    actionButtonText = "Reset Filters",
+                    onActionClick = {
+                        viewModel.setDietFilter("ALL")
+                        if (uiState.quickBiteFilter) viewModel.toggleQuickBites()
+                    }
                 )
             } else {
                 val displayedItems = if (uiState.selectedCategory != null) {
@@ -208,6 +299,8 @@ fun OutletMenuScreen(
                             description = item.description,
                             isSoldOut = !item.isAvailable,
                             quantity = currentQty,
+                            isQuickBite = item.isQuickBite,
+                            liveCount = item.liveAvailableCount,
                             onItemClick = {
                                 selectedItemForSheet = item
                             },

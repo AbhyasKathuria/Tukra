@@ -67,7 +67,8 @@ fun HomeScreen(
     onOutletClick: (outletId: String, outletName: String) -> Unit,
     onViewCartClick: () -> Unit,
     onTabSelected: (StudentNavTab) -> Unit,
-    onWalletClick: () -> Unit
+    onWalletClick: () -> Unit,
+    onHostelMessClick: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
@@ -192,6 +193,66 @@ fun HomeScreen(
                         }
                     }
 
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Dedicated Hostel Mess Pass Banner (Point 9)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(Color(0xFF2A1525))
+                            .clickable { onHostelMessClick() }
+                            .padding(16.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        text = "🏢 HOSTEL MESS PASS",
+                                        fontFamily = SoraFamily,
+                                        fontWeight = FontWeight.ExtraBold,
+                                        fontSize = 11.sp,
+                                        color = Color(0xFFFFD166)
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(4.dp))
+                                            .background(Color(0xFF06D6A0))
+                                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                                    ) {
+                                        Text("MEAL ACTIVE", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "Cauvery Boys Hostel • Today's Special Lunch",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White
+                                )
+                                Text(
+                                    text = "Tap to open dynamic QR meal pass & view mess menu",
+                                    fontSize = 11.sp,
+                                    color = Color.White.copy(alpha = 0.75f)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(Color.White.copy(alpha = 0.15f))
+                                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                            ) {
+                                Text("OPEN QR ➔", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                            }
+                        }
+                    }
+
                     Spacer(modifier = Modifier.height(18.dp))
 
                     // Search Bar
@@ -250,16 +311,16 @@ fun HomeScreen(
                             FilterChip(
                                 selected = uiState.filterVegOnly,
                                 onClick = { viewModel.toggleVegOnly() },
-                                label = { Text("Veg only", fontSize = 12.sp) },
+                                label = { Text("🟢 Pure Veg", fontSize = 12.sp, fontWeight = FontWeight.SemiBold) },
                                 colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = TukraPink,
-                                    selectedLabelColor = Ink,
+                                    selectedContainerColor = Color(0xFFD4EDDA),
+                                    selectedLabelColor = Color(0xFF155724),
                                     containerColor = Color.White,
                                     labelColor = InkSoft
                                 ),
                                 border = FilterChipDefaults.filterChipBorder(
                                     borderColor = OutlineWarm,
-                                    selectedBorderColor = TukraPink,
+                                    selectedBorderColor = Color(0xFF28A745),
                                     enabled = true,
                                     selected = uiState.filterVegOnly
                                 )
@@ -269,16 +330,16 @@ fun HomeScreen(
                             FilterChip(
                                 selected = uiState.filterReadyFast,
                                 onClick = { viewModel.toggleReadyFast() },
-                                label = { Text("Ready fast (≤15m)", fontSize = 12.sp) },
+                                label = { Text("⚡ Quick Bites (≤3m)", fontSize = 12.sp, fontWeight = FontWeight.Bold) },
                                 colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = TukraPink,
-                                    selectedLabelColor = Ink,
+                                    selectedContainerColor = Color(0xFFFFEECC),
+                                    selectedLabelColor = Color(0xFFB45309),
                                     containerColor = Color.White,
                                     labelColor = InkSoft
                                 ),
                                 border = FilterChipDefaults.filterChipBorder(
                                     borderColor = OutlineWarm,
-                                    selectedBorderColor = TukraPink,
+                                    selectedBorderColor = Color(0xFFD97706),
                                     enabled = true,
                                     selected = uiState.filterReadyFast
                                 )

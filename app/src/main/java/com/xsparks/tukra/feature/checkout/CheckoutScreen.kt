@@ -36,7 +36,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -56,6 +58,7 @@ import com.xsparks.tukra.core.designsystem.OutlineWarm
 import com.xsparks.tukra.core.designsystem.SoraFamily
 import com.xsparks.tukra.core.designsystem.Success
 import com.xsparks.tukra.core.designsystem.TukraPink
+import com.xsparks.tukra.core.designsystem.components.PaymentGatewayDialog
 import com.xsparks.tukra.core.designsystem.components.PrimaryButton
 import com.xsparks.tukra.core.designsystem.components.SecondaryButton
 import com.xsparks.tukra.core.designsystem.components.VegNonVegMark
@@ -79,6 +82,7 @@ fun CheckoutScreen(
     val cartState by cartManager.cartState.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
+    var showPaymentGatewayDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.createdOrderId) {
         val orderId = uiState.createdOrderId
@@ -132,32 +136,30 @@ fun CheckoutScreen(
                     .background(Color.White)
                     .padding(20.dp)
             ) {
+                // Point 13: Dedicated Payment Gateway Dashboard Trigger
+                PrimaryButton(
+                    text = "Pay ${totalPaise.toRupees()} (UPI / Card / NetBanking)",
+                    onClick = { showPaymentGatewayDialog = true },
+                    isLoading = uiState.isPlacingOrder || uiState.isDemoTopupLoading,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
                 if (isShort) {
-                    PrimaryButton(
-                        text = "Add ${shortfallPaise.toRupees()} & Pay ${totalPaise.toRupees()}",
+                    SecondaryButton(
+                        text = "Top-up & Pay from Wallet (${shortfallPaise.toRupees()} short)",
                         onClick = {
                             viewModel.addDemoMoneyAndPay(outletId, slotId, shortfallPaise)
                         },
-                        isLoading = uiState.isDemoTopupLoading || uiState.isPlacingOrder,
+                        isOutlined = true,
                         modifier = Modifier.fillMaxWidth()
                     )
                 } else {
-                    PrimaryButton(
-                        text = "Pay ${totalPaise.toRupees()} from Wallet",
+                    SecondaryButton(
+                        text = "Instant 1-Tap Wallet Pay (${walletPaise.toRupees()} available)",
                         onClick = {
                             viewModel.placeOrder(outletId, slotId, paymentMethod = "WALLET")
-                        },
-                        isLoading = uiState.isPlacingOrder,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-
-                if (BuildConfig.DEBUG) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    SecondaryButton(
-                        text = "Demo Pay (Test Mode)",
-                        onClick = {
-                            viewModel.placeOrder(outletId, slotId, paymentMethod = "DEMO")
                         },
                         isOutlined = true,
                         modifier = Modifier.fillMaxWidth()
@@ -345,6 +347,21 @@ fun CheckoutScreen(
             }
 
             Spacer(modifier = Modifier.height(24.dp))
+        }
+
+        if (showPaymentGatewayDialog) {
+            PaymentGatewayDialog(
+                amountRupees = totalPaise.toRupees(),
+                onDismiss = { showPaymentGatewayDialog = false },
+                onPaymentSuccess = { method, detail ->
+                    showPaymentGatewayDialog = false
+                    if (isShort) {
+                        viewModel.addDemoMoneyAndPay(outletId, slotId, shortfallPaise)
+                    } else {
+                        viewModel.placeOrder(outletId, slotId, paymentMethod = "WALLET")
+                    }
+                }
+            )
         }
     }
 }

@@ -31,7 +31,16 @@ data class UserDto(
     val campusId: String? = null,
     val hostel: String? = null,
     val dietPreference: String? = null,
-    val outletId: String? = null
+    val outletId: String? = null,
+    val rollNumber: String? = null,
+    val department: String? = null,
+    val degreeYear: String? = null,
+    val roomNumber: String? = null,
+    val rfidCardId: String? = null,
+    val greenCredits: Int = 420,
+    val cleanStreakDays: Int = 14,
+    val foodSavedKg: Double = 4.2,
+    val balancePaise: Int = 0
 )
 
 @Serializable
@@ -91,12 +100,39 @@ data class MenuItemDto(
     val isAvailable: Boolean = true,
     val prepTimeSeconds: Int = 180,
     val prepUnits: Int = 1,
-    val imageUrl: String? = null
+    val imageUrl: String? = null,
+    val isQuickBite: Boolean = false,
+    val liveAvailableCount: Int = 12,
+    val tinyfishSynced: Boolean = true
 )
 
 @Serializable
 data class MenuResponse(
-    val items: List<MenuItemDto>
+    val items: List<MenuItemDto> = emptyList(),
+    val liveOptionsCount: Int = 0,
+    val tinyfishSyncStatus: String = "LIVE"
+)
+
+@Serializable
+data class LiveItemDto(
+    val id: String,
+    val name: String,
+    val priceRupees: Double,
+    val isVeg: Boolean,
+    val isQuickBite: Boolean,
+    val liveAvailableCount: Int
+)
+
+@Serializable
+data class LiveOptionsResponse(
+    val outletId: String,
+    val totalLiveOptions: Int,
+    val vegOptionsCount: Int,
+    val nonVegOptionsCount: Int,
+    val quickBitesCount: Int,
+    val syncAgent: String = "TinyFish Autonomous Sync",
+    val lastSyncedAt: String? = null,
+    val items: List<LiveItemDto> = emptyList()
 )
 
 // --- Slot DTOs ---
@@ -284,7 +320,8 @@ data class PlateOpenRequest(
 
 @Serializable
 data class PlateLinkRequest(
-    val plateCode: String
+    val plateCode: String,
+    val studentEmail: String? = null
 )
 
 @Serializable
@@ -310,7 +347,135 @@ data class PlateSessionDto(
     val status: String, // "OPEN", "BILLED", "PAID"
     val totalPaise: Int = 0,
     val items: List<PlateSessionItemDto> = emptyList(),
-    val studentName: String? = null
+    val studentName: String? = null,
+    val studentEmail: String? = null,
+    val rollNumber: String? = null,
+    val hostel: String? = null,
+    val greenCredits: Int? = null,
+    val message: String? = null
+)
+
+// --- Live TinyFish Plate & Vision DTOs ---
+
+@Serializable
+data class LivePlateStatsDto(
+    val activePlatesInHall: Int = 42,
+    val totalPlatesToday: Int = 360,
+    val clearedPlatesToday: Int = 318,
+    val zeroWasteRatePercent: Int = 94,
+    val foodWasteSavedKg: Double = 18.5,
+    val tinyfishVisionAgent: String = "ACTIVE",
+    val lastRefreshedAt: String = ""
+)
+
+@Serializable
+data class ScanDishRequest(
+    val outletId: String? = null,
+    val dishNameHint: String? = null,
+    val plateCode: String? = null
+)
+
+@Serializable
+data class ScanDishResponse(
+    val dishId: String,
+    val dishName: String,
+    val description: String? = null,
+    val priceRupees: Double = 0.0,
+    val pricePaise: Int = 0,
+    val isVeg: Boolean = true,
+    val isQuickBite: Boolean = false,
+    val estimatedCalories: Int = 350,
+    val confidenceScore: Double = 0.95,
+    val tinyfishModel: String = "TinyFish Multi-Modal Dish Vision v2.1",
+    val addedToPlateSession: String? = null
+)
+
+// --- TinyFish Live Menu Swapping DTOs ---
+
+@Serializable
+data class SwapDishDto(
+    val id: String,
+    val name: String,
+    val priceRupees: Double = 0.0
+)
+
+@Serializable
+data class IncomingDishDto(
+    val name: String,
+    val priceRupees: Double = 0.0,
+    val pricePaise: Int = 0,
+    val isVeg: Boolean = true,
+    val prepSeconds: Int = 180,
+    val category: String = "Specials",
+    val description: String = ""
+)
+
+@Serializable
+data class SwapSuggestionItem(
+    val swapId: String,
+    val title: String,
+    val reason: String,
+    val currentDish: SwapDishDto? = null,
+    val incomingDish: IncomingDishDto,
+    val tinyfishConfidence: Double = 0.92
+)
+
+@Serializable
+data class SwapSuggestionsResponse(
+    val outletName: String = "",
+    val activeItemsCount: Int = 0,
+    val suggestions: List<SwapSuggestionItem> = emptyList(),
+    val tinyfishEngine: String = "TinyFish Autonomous Agent v1.0"
+)
+
+@Serializable
+data class SwapExchangeRequest(
+    val currentDishId: String? = null,
+    val newDish: IncomingDishDto? = null
+)
+
+@Serializable
+data class SwapExchangeResponse(
+    val success: Boolean = true,
+    val message: String = "",
+    val swappedAt: String = ""
+)
+
+// --- Hostel Mess Pass & Attendance DTOs ---
+
+@Serializable
+data class MessMealItemDto(
+    val id: String,
+    val dishName: String,
+    val isVeg: Boolean = true,
+    val description: String? = null
+)
+
+@Serializable
+data class HostelDashboardDto(
+    val studentName: String = "Aarav Sharma",
+    val studentEmail: String = "aarav@presidency.ac.in",
+    val rollNumber: String = "20231CSE0491",
+    val hostelName: String = "Cauvery Boys Hostel (Block B)",
+    val roomNumber: String = "B-204",
+    val dietPreference: String = "VEG",
+    val mealPassQr: String = "TUKRA:HOSTEL:PASS:DEMO",
+    val currentMeal: String = "LUNCH",
+    val mealTiming: String = "12:30 PM - 02:30 PM",
+    val isWindowOpen: Boolean = true,
+    val greenCredits: Int = 420,
+    val cleanStreakDays: Int = 14,
+    val foodSavedKg: Double = 4.2,
+    val todayMenu: List<MessMealItemDto> = emptyList(),
+    val monthlyAttendancePercent: Int = 94,
+    val attendanceStreakDays: Int = 14
+)
+
+@Serializable
+data class CampusDemoDataResponse(
+    val campus: String = "Presidency University, Bengaluru",
+    val totalRecords: Int = 0,
+    val students: List<UserDto> = emptyList()
 )
 
 // --- Health DTO ---

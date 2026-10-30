@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.xsparks.tukra.core.network.AddItemRequest
 import com.xsparks.tukra.core.network.MenuItemDto
 import com.xsparks.tukra.core.network.NetworkClient
+import com.xsparks.tukra.core.network.SwapExchangeRequest
+import com.xsparks.tukra.core.network.SwapSuggestionItem
 import com.xsparks.tukra.core.network.TokenStore
 import com.xsparks.tukra.core.network.UpdateItemRequest
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,6 +21,8 @@ data class VendorMenuUiState(
     val searchQuery: String = "",
     val isLoading: Boolean = false,
     val isActionLoading: Boolean = false,
+    val isSwapLoading: Boolean = false,
+    val swapSuggestions: List<SwapSuggestionItem> = emptyList(),
     val errorMessage: String? = null,
     val actionSuccessMessage: String? = null
 )
@@ -34,6 +38,39 @@ class VendorMenuViewModel(
 
     init {
         loadItems()
+        loadSwapSuggestions()
+    }
+
+    fun loadSwapSuggestions() {
+        viewModelScope.launch {
+            try {
+                val res = api.getSwapSuggestions()
+                _uiState.update { it.copy(swapSuggestions = res.suggestions) }
+            } catch (_: Exception) {}
+        }
+    }
+
+    fun executeSwapExchange(suggestion: SwapSuggestionItem) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isSwapLoading = true) }
+            try {
+                val req = SwapExchangeRequest(
+                    currentDishId = suggestion.currentDish?.id,
+                    newDish = suggestion.incomingDish
+                )
+                val res = api.swapExchange(req)
+                loadItems()
+                loadSwapSuggestions()
+                _uiState.update {
+                    it.copy(
+                        isSwapLoading = false,
+                        actionSuccessMessage = res.message.ifBlank { "TinyFish live menu swap applied!" }
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(isSwapLoading = false, errorMessage = e.message) }
+            }
+        }
     }
 
     fun loadItems() {

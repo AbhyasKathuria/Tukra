@@ -16,13 +16,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.AutoAwesome
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.SwapHoriz
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -57,6 +61,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.xsparks.tukra.core.designsystem.Blush
 import com.xsparks.tukra.core.designsystem.Butter
+import com.xsparks.tukra.core.designsystem.Danger
 import com.xsparks.tukra.core.designsystem.Ink
 import com.xsparks.tukra.core.designsystem.InkSoft
 import com.xsparks.tukra.core.designsystem.OutlineWarm
@@ -84,6 +89,7 @@ fun VendorMenuScreen(
     var itemToEditPrice by remember { mutableStateOf<MenuItemDto?>(null) }
     var newPriceInput by remember { mutableStateOf("") }
     var showAddDishDialog by remember { mutableStateOf(false) }
+    var showSwapExchangeDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.errorMessage) {
         uiState.errorMessage?.let {
@@ -197,6 +203,50 @@ fun VendorMenuScreen(
                         Icon(Icons.Outlined.Add, contentDescription = "Add Dish", modifier = Modifier.size(20.dp))
                     }
                 }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // Point 4: TinyFish Live Menu Swapping Exchange Banner
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFF2A1525))
+                        .clickable { showSwapExchangeDialog = true }
+                        .padding(12.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                            Icon(Icons.Outlined.SwapHoriz, contentDescription = null, tint = Color(0xFFFFD166), modifier = Modifier.size(22.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text(
+                                    text = "🔄 TinyFish Live Menu Swapping Exchange",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White
+                                )
+                                Text(
+                                    text = "Autonomous AI rotation: slow items ➔ high margin specials",
+                                    fontSize = 10.sp,
+                                    color = Color.White.copy(alpha = 0.75f)
+                                )
+                            }
+                        }
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(Color(0xFFFFD166))
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Text("REVIEW SWAP", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Ink)
+                        }
+                    }
+                }
             }
 
             Divider(color = OutlineWarm, thickness = 1.dp)
@@ -303,6 +353,91 @@ fun VendorMenuScreen(
                 viewModel.addNewDish(name, price, isVeg, prepMins, prepUnits, desc)
                 showAddDishDialog = false
             }
+        )
+    }
+
+    if (showSwapExchangeDialog) {
+        AlertDialog(
+            onDismissRequest = { showSwapExchangeDialog = false },
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Outlined.SwapHoriz, contentDescription = null, tint = Ink)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("TinyFish Live Menu Swaps", fontFamily = SoraFamily, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Ink)
+                }
+            },
+            text = {
+                Column(modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
+                    Text(
+                        text = "TinyFish autonomous agent analyzed past order velocity & campus demand to recommend these real-time menu substitutions:",
+                        fontSize = 12.sp,
+                        color = InkSoft
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    if (uiState.swapSuggestions.isEmpty()) {
+                        Text("No active swap suggestions at the moment.", fontSize = 13.sp, color = InkSoft)
+                    } else {
+                        uiState.swapSuggestions.forEach { suggestion ->
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(Blush.copy(alpha = 0.5f))
+                                    .border(1.dp, OutlineWarm, RoundedCornerShape(12.dp))
+                                    .padding(12.dp)
+                            ) {
+                                Column {
+                                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                        Text(suggestion.title, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = Ink)
+                                        Text("${Math.round(suggestion.tinyfishConfidence * 100)}% Match", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1B8754))
+                                    }
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(suggestion.reason, fontSize = 11.sp, color = InkSoft)
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text(
+                                            text = "Current: ${suggestion.currentDish?.name ?: "Slow Item"} (₹${suggestion.currentDish?.priceRupees ?: 0.0})",
+                                            fontSize = 11.sp,
+                                            color = Danger,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Text("➔", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Ink)
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Text(
+                                            text = "New: ${suggestion.incomingDish.name} (₹${suggestion.incomingDish.priceRupees})",
+                                            fontSize = 11.sp,
+                                            color = Color(0xFF1B8754),
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+
+                                    Spacer(modifier = Modifier.height(10.dp))
+                                    PrimaryButton(
+                                        text = "Execute Live Swap ⚡",
+                                        onClick = {
+                                            viewModel.executeSwapExchange(suggestion)
+                                            showSwapExchangeDialog = false
+                                        },
+                                        isLoading = uiState.isSwapLoading,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(10.dp))
+                        }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                OutlinedButton(onClick = { showSwapExchangeDialog = false }) {
+                    Text("Close", color = Ink)
+                }
+            },
+            containerColor = Color.White
         )
     }
 }

@@ -49,6 +49,8 @@ fun DishRow(
     description: String? = null,
     isSoldOut: Boolean = false,
     quantity: Int = 0,
+    isQuickBite: Boolean = false,
+    liveCount: Int? = null,
     onAddClick: () -> Unit = {},
     onIncrement: () -> Unit = {},
     onDecrement: () -> Unit = {},
@@ -93,12 +95,48 @@ fun DishRow(
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            Text(
-                text = priceRupees,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                color = Ink.copy(alpha = opacity)
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = priceRupees,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Ink.copy(alpha = opacity)
+                )
+
+                if (isQuickBite) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(Color(0xFFFFEECC))
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = "⚡ Quick Bite (<3m)",
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFD97706)
+                        )
+                    }
+                }
+
+                if (liveCount != null && liveCount > 0 && liveCount <= 15) {
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(Color(0xFFE8F5E9))
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = "⚡ $liveCount left",
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF2E7D32)
+                        )
+                    }
+                }
+            }
 
             if (!description.isNullOrBlank()) {
                 Spacer(modifier = Modifier.height(4.dp))

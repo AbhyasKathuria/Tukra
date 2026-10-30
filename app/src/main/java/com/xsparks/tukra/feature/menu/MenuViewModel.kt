@@ -17,9 +17,13 @@ data class MenuUiState(
     val isLoading: Boolean = true,
     val outletId: String = "",
     val outletName: String = "",
+    val allItems: List<MenuItemDto> = emptyList(),
     val items: List<MenuItemDto> = emptyList(),
     val categories: List<String> = emptyList(),
     val selectedCategory: String? = null,
+    val dietFilter: String = "ALL", // "ALL", "VEG", "NON_VEG"
+    val quickBiteFilter: Boolean = false,
+    val liveOptionsCount: Int = 0,
     val errorMessage: String? = null
 )
 
@@ -46,14 +50,17 @@ class MenuViewModel(
             val result = safeApiCall { api.getOutletMenu(outletId) }
             when (result) {
                 is Resource.Success -> {
-                    val items = result.data.items
-                    val categories = items.map { it.category }.distinct()
+                    val rawItems = result.data.items
+                    val filtered = applyFilters(rawItems, _uiState.value.dietFilter, _uiState.value.quickBiteFilter)
+                    val categories = filtered.map { it.category }.distinct()
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            items = items,
+                            allItems = rawItems,
+                            items = filtered,
                             categories = categories,
-                            selectedCategory = categories.firstOrNull()
+                            selectedCategory = categories.firstOrNull(),
+                            liveOptionsCount = result.data.liveOptionsCount.takeIf { c -> c > 0 } ?: rawItems.count { i -> i.isAvailable }
                         )
                     }
                 }
@@ -67,7 +74,51 @@ class MenuViewModel(
         }
     }
 
+    fun setDietFilter(filter: String) {
+        _uiState.update { current ->
+            val newDiet = filter
+            val filtered = applyFilters(current.allItems, newDiet, current.quickBiteFilter)
+            val categories = filtered.map { it.category }.distinct()
+            current.copy(
+                dietFilter = newDiet,
+                items = filtered,
+                categories = categories,
+                selectedCategory = if (current.selectedCategory in categories) current.selectedCategory else categories.firstOrNull()
+            )
+        }
+    }
+
+    fun toggleQuickBites() {
+        _uiState.update { current ->
+            val newQb = !current.quickBiteFilter
+            val filtered = applyFilters(current.allItems, current.dietFilter, newQb)
+            val categories = filtered.map { it.category }.distinct()
+            current.copy(
+                quickBiteFilter = newQb,
+                items = filtered,
+                categories = categories,
+                selectedCategory = if (current.selectedCategory in categories) current.selectedCategory else categories.firstOrNull()
+            )
+        }
+    }
+
     fun selectCategory(category: String) {
         _uiState.update { it.copy(selectedCategory = category) }
+    }
+
+    private fun applyFilters(
+        items: List<MenuItemDto>,
+        diet: String,
+        quickBite: Boolean
+    ): List<MenuItemDto> {
+        return items.filter { item ->
+            val matchDiet = when (diet) {
+                "VEG" -> item.isVeg
+                "NON_VEG" -> !item.isVeg
+                else -> true
+            }
+            val matchQuickBite = !quickBite || item.isQuickBite || item.prepTimeSeconds <= 180
+            matchDiet && matchQuickBite
+        }
     }
 }

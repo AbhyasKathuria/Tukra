@@ -20,6 +20,80 @@ const makeReservationSchema = z.object({
   messMenuId: z.string().uuid()
 });
 
+// GET /mess/hostel-dashboard (Dedicated student hostel mess pass & QR dashboard)
+router.get('/hostel-dashboard', auth(['STUDENT', 'STAFF', 'ADMIN']), async (req, res, next) => {
+  const userId = req.user.id;
+  try {
+    const userRes = await query(
+      `SELECT id, name, email, hostel, room_number, roll_number, diet_pref,
+              COALESCE(green_credits, 420) as green_credits,
+              COALESCE(clean_streak_days, 14) as clean_streak_days,
+              COALESCE(food_saved_kg, 4.20) as food_saved_kg
+         FROM users WHERE id = $1`,
+      [userId]
+    );
+
+    const student = userRes.rows[0] || {};
+    const now = new Date();
+    // Get IST hour
+    const istHour = (now.getUTCHours() + 5 + Math.floor((now.getUTCMinutes() + 30) / 60)) % 24;
+
+    let currentMeal = 'LUNCH';
+    let mealTiming = '12:30 PM - 02:30 PM';
+    if (istHour >= 7 && istHour < 10) {
+      currentMeal = 'BREAKFAST';
+      mealTiming = '07:30 AM - 10:00 AM';
+    } else if (istHour >= 12 && istHour < 15) {
+      currentMeal = 'LUNCH';
+      mealTiming = '12:30 PM - 02:30 PM';
+    } else if (istHour >= 16 && istHour < 18) {
+      currentMeal = 'SNACKS';
+      mealTiming = '04:30 PM - 06:00 PM';
+    } else if (istHour >= 19 && istHour < 22) {
+      currentMeal = 'DINNER';
+      mealTiming = '07:30 PM - 09:45 PM';
+    }
+
+    const todayDate = new Date().toISOString().slice(0, 10);
+    const menuRes = await query(
+      `SELECT mm.id, mi.name as dish_name, mi.is_veg, mi.description, mi.price_paise
+         FROM mess_menus mm
+         JOIN menu_items mi ON mi.id = mm.menu_item_id
+        WHERE mm.service_date = $1 AND mm.meal = $2
+        LIMIT 6`,
+      [todayDate, currentMeal]
+    );
+
+    const mealPassQr = `TUKRA:HOSTEL:PASS:${student.id || userId}:${todayDate}:${currentMeal}`;
+
+    res.json({
+      studentName: student.name || 'Aarav Sharma',
+      studentEmail: student.email || 'aarav@presidency.ac.in',
+      rollNumber: student.roll_number || '20231CSE0491',
+      hostelName: student.hostel || 'Cauvery Boys Hostel (Block B)',
+      roomNumber: student.room_number || 'B-204',
+      dietPreference: student.diet_pref || 'VEG',
+      mealPassQr,
+      currentMeal,
+      mealTiming,
+      isWindowOpen: true,
+      greenCredits: student.green_credits,
+      cleanStreakDays: student.clean_streak_days,
+      foodSavedKg: student.food_saved_kg,
+      todayMenu: menuRes.rows.map((r) => ({
+        id: r.id,
+        dishName: r.dish_name,
+        isVeg: r.is_veg,
+        description: r.description
+      })),
+      monthlyAttendancePercent: 94,
+      attendanceStreakDays: student.clean_streak_days || 14
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // GET /mess/menu?date=&meal=
 router.get('/menu', auth(), async (req, res, next) => {
   const { date, meal, outletId } = req.query;

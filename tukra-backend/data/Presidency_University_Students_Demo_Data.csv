@@ -1,0 +1,11 @@
+roll_number,full_name,college_email,phone,department,degree,year_semester,hostel_block,room_number,mess_plan,diet_preference,wallet_balance_rupees,clean_plate_streak_days,food_waste_saved_kg,green_credits,rfid_card_id
+PU2023CS0101,Aarav Sharma,aarav@presidency.ac.in,+91 98765 43210,Computer Science & Engineering,B.Tech,3rd Year (Sem 5),Nilgiri Block A,Room 304,Gold Full-Board (3 Meals/Day),VEG,500,14,4.2,420,PU-RFID-883921
+PU2023CS0102,Priya Patel,priya@presidency.ac.in,+91 98765 43211,Computer Science & Engineering,B.Tech,3rd Year (Sem 5),Cauvery Block B,Room 212,Silver (Lunch & Dinner),VEG,0,9,2.8,280,PU-RFID-883922
+PU2022EC0045,Rohan Deshmukh,rohan.d@presidency.ac.in,+91 98765 43218,Electronics & Communication,B.Tech,4th Year (Sem 7),Krishna Block C,Room 408,Gold Full-Board (3 Meals/Day),NON-VEG,350,21,6.5,650,PU-RFID-883923
+PU2023AI0021,Ananya Iyer,ananya.iyer@presidency.ac.in,+91 98765 43219,Artificial Intelligence & Data Science,B.Tech,3rd Year (Sem 5),Cauvery Block B,Room 105,Flexible Pay-Per-Meal,JAIN,420,18,5.1,510,PU-RFID-883924
+PU2024ME0012,Kabir Verma,kabir.v@presidency.ac.in,+91 98765 43220,Mechanical Engineering,B.Tech,2nd Year (Sem 3),Narmada Block D,Room 118,Gold Full-Board (3 Meals/Day),NON-VEG,650,11,3.4,340,PU-RFID-883925
+PU2023BT0033,Sneha Mukhopadhyay,sneha.m@presidency.ac.in,+91 98765 43221,Biotechnology,B.Tech,3rd Year (Sem 5),Cauvery Block B,Room 310,Silver (Lunch & Dinner),EGG,280,15,4.6,460,PU-RFID-883926
+PU2023MB0088,Vikram Malhotra,vikram.m@presidency.ac.in,+91 98765 43222,School of Management,MBA,2nd Year (Sem 3),Day Scholar (Koramangala),N/A,Flexible Pay-Per-Meal,NON-VEG,890,8,2.2,220,PU-RFID-883927
+PU2024LW0019,Diya Sengupta,diya.s@presidency.ac.in,+91 98765 43223,School of Law,BA LLB,2nd Year (Sem 3),Narmada Block D,Room 202,Gold Full-Board (3 Meals/Day),VEG,150,12,3.7,370,PU-RFID-883928
+PU2023CS0109,Arjun Nambiar,arjun.n@presidency.ac.in,+91 98765 43224,Computer Science & Engineering,B.Tech,3rd Year (Sem 5),Nilgiri Block A,Room 102,Gold Full-Board (3 Meals/Day),NON-VEG,400,25,7.9,790,PU-RFID-883929
+PU2024CS0210,Tanvi Chawla,tanvi.c@presidency.ac.in,+91 98765 43225,Information Science & Tech,B.Tech,2nd Year (Sem 3),Cauvery Block B,Room 414,Silver (Lunch & Dinner),VEG,520,16,4.9,490,PU-RFID-883930

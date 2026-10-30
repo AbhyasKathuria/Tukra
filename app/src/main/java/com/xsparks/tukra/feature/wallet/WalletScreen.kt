@@ -66,6 +66,7 @@ import com.xsparks.tukra.core.designsystem.SoraFamily
 import com.xsparks.tukra.core.designsystem.Success
 import com.xsparks.tukra.core.designsystem.TukraPink
 import com.xsparks.tukra.core.designsystem.components.EmptyState
+import com.xsparks.tukra.core.designsystem.components.PaymentGatewayDialog
 import com.xsparks.tukra.core.designsystem.components.PrimaryButton
 import com.xsparks.tukra.core.designsystem.components.StudentBottomBar
 import com.xsparks.tukra.core.designsystem.components.StudentNavTab
@@ -86,6 +87,7 @@ fun WalletScreen(
 
     var selectedAmount by remember { mutableIntStateOf(200) }
     var customAmountText by remember { mutableStateOf("") }
+    var showPaymentGatewayDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.errorMessage) {
         val err = uiState.errorMessage
@@ -268,9 +270,9 @@ fun WalletScreen(
 
                         val finalAmount = customAmountText.toIntOrNull() ?: selectedAmount
                         PrimaryButton(
-                            text = "Add ₹$finalAmount to Wallet",
+                            text = "Add ₹$finalAmount via Payment Gateway (UPI / Card / Bank)",
                             onClick = {
-                                viewModel.topupDemo(finalAmount)
+                                showPaymentGatewayDialog = true
                             },
                             isLoading = uiState.isTopupLoading,
                             modifier = Modifier.fillMaxWidth()
@@ -323,6 +325,18 @@ fun WalletScreen(
                     )
                 }
             }
+        }
+
+        if (showPaymentGatewayDialog) {
+            val finalAmount = customAmountText.toIntOrNull() ?: selectedAmount
+            PaymentGatewayDialog(
+                amountRupees = "₹$finalAmount",
+                onDismiss = { showPaymentGatewayDialog = false },
+                onPaymentSuccess = { method, detail ->
+                    showPaymentGatewayDialog = false
+                    viewModel.topupDemo(finalAmount)
+                }
+            )
         }
     }
 }

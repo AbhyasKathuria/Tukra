@@ -23,6 +23,7 @@ sealed interface Route {
     @Serializable data object Wallet : Route
     @Serializable data object ScanPlate : Route
     @Serializable data object Profile : Route
+    @Serializable data object HostelMess : Route
 
     // Roles & Vendor Flow
     @Serializable data object VendorQueue : Route

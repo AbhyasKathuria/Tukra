@@ -2,9 +2,12 @@ package com.xsparks.tukra.feature.scan
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.xsparks.tukra.core.network.LivePlateStatsDto
 import com.xsparks.tukra.core.network.NetworkClient
 import com.xsparks.tukra.core.network.PlateLinkRequest
 import com.xsparks.tukra.core.network.PlateSessionDto
+import com.xsparks.tukra.core.network.ScanDishRequest
+import com.xsparks.tukra.core.network.ScanDishResponse
 import com.xsparks.tukra.core.network.TokenStore
 import com.xsparks.tukra.core.util.Resource
 import com.xsparks.tukra.core.util.safeApiCall
@@ -19,9 +22,14 @@ data class PlateScanUiState(
     val isLinking: Boolean = false,
     val isPolling: Boolean = false,
     val isPaying: Boolean = false,
+    val isScanningDish: Boolean = false,
     val plateCode: String? = null,
+    val studentEmail: String = "",
     val session: PlateSessionDto? = null,
+    val liveStats: LivePlateStatsDto? = null,
+    val lastScannedDish: ScanDishResponse? = null,
     val errorMessage: String? = null,
+    val successMessage: String? = null,
     val isPaid: Boolean = false
 )
 
@@ -36,14 +44,39 @@ class PlateScanViewModel(
 
     private var activePolling = false
 
-    fun linkPlate(code: String) {
+    init {
+        loadUserEmail()
+        loadLivePlateStats()
+    }
+
+    private fun loadUserEmail() {
+        viewModelScope.launch {
+            tokenStore.userFlow.collect { user ->
+                if (user != null) {
+                    _uiState.update { it.copy(studentEmail = user.email) }
+                }
+            }
+        }
+    }
+
+    fun loadLivePlateStats() {
+        viewModelScope.launch {
+            val result = safeApiCall { api.getLivePlateStats() }
+            if (result is Resource.Success) {
+                _uiState.update { it.copy(liveStats = result.data) }
+            }
+        }
+    }
+
+    fun linkPlate(code: String, emailOverride: String? = null) {
         val trimmed = code.trim().uppercase()
         if (trimmed.isBlank()) return
+        val targetEmail = emailOverride?.trim()?.ifBlank { null } ?: _uiState.value.studentEmail.ifBlank { null }
 
         viewModelScope.launch {
             _uiState.update { it.copy(isLinking = true, errorMessage = null, plateCode = trimmed) }
             val result = safeApiCall {
-                api.linkPlateSession(PlateLinkRequest(plateCode = trimmed))
+                api.linkPlateSession(PlateLinkRequest(plateCode = trimmed, studentEmail = targetEmail))
             }
             when (result) {
                 is Resource.Success -> {
@@ -52,7 +85,8 @@ class PlateScanViewModel(
                         it.copy(
                             isLinking = false,
                             session = session,
-                            isPaid = session.status == "PAID"
+                            isPaid = session.status == "PAID",
+                            successMessage = "Plate $trimmed linked to ${session.studentName ?: targetEmail ?: "your account"}"
                         )
                     }
                     startPollingBill(session.id)
@@ -61,6 +95,40 @@ class PlateScanViewModel(
                     _uiState.update {
                         it.copy(isLinking = false, errorMessage = result.message)
                     }
+                }
+                is Resource.Loading -> Unit
+            }
+        }
+    }
+
+    fun scanDishAi(hint: String? = null) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isScanningDish = true, errorMessage = null) }
+            val plateCode = _uiState.value.plateCode ?: "PLT-0001"
+            val result = safeApiCall {
+                api.scanDishAi(ScanDishRequest(plateCode = plateCode, dishNameHint = hint))
+            }
+            when (result) {
+                is Resource.Success -> {
+                    val dishResult = result.data
+                    _uiState.update {
+                        it.copy(
+                            isScanningDish = false,
+                            lastScannedDish = dishResult,
+                            successMessage = "TinyFish Vision detected: ${dishResult.dishName} (₹${dishResult.priceRupees})"
+                        )
+                    }
+                    // Refresh session bill
+                    val currentSession = _uiState.value.session
+                    if (currentSession != null) {
+                        val sessionRes = safeApiCall { api.getPlateSession(currentSession.id) }
+                        if (sessionRes is Resource.Success) {
+                            _uiState.update { it.copy(session = sessionRes.data) }
+                        }
+                    }
+                }
+                is Resource.Error -> {
+                    _uiState.update { it.copy(isScanningDish = false, errorMessage = result.message) }
                 }
                 is Resource.Loading -> Unit
             }
