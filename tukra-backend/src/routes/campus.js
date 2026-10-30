@@ -2,6 +2,7 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import * as XLSX from 'xlsx';
 import { query, toCamelCase } from '../db.js';
 import { auth } from '../middleware/auth.js';
 
@@ -12,25 +13,52 @@ const dataDir = path.join(__dirname, '..', '..', 'data');
 const router = express.Router();
 
 // GET /campus/export/students-excel
-router.get('/export/students-excel', (req, res) => {
+router.get('/export/students-excel', async (req, res, next) => {
   const filePath = path.join(dataDir, 'Presidency_University_Students_Demo_Data.xlsx');
   if (fs.existsSync(filePath)) {
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-Disposition', 'attachment; filename="Presidency_University_Students_Demo_Data.xlsx"');
     return res.sendFile(filePath);
   }
-  res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Demo Excel file not found' } });
+  try {
+    const { rows } = await query(
+      `SELECT roll_number, name, email, phone, department, degree_year, hostel, room_number, diet_pref, rfid_card_id, COALESCE(green_credits, 420) as green_credits
+         FROM users WHERE role IN ('STUDENT', 'STAFF') ORDER BY roll_number`
+    );
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(rows);
+    XLSX.utils.book_append_sheet(wb, ws, 'Students');
+    const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename="Presidency_University_Students_Demo_Data.xlsx"');
+    res.send(buf);
+  } catch (err) {
+    next(err);
+  }
 });
 
 // GET /campus/export/students-csv
-router.get('/export/students-csv', (req, res) => {
+router.get('/export/students-csv', async (req, res, next) => {
   const filePath = path.join(dataDir, 'Presidency_University_Students_Demo_Data.csv');
   if (fs.existsSync(filePath)) {
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', 'attachment; filename="Presidency_University_Students_Demo_Data.csv"');
     return res.sendFile(filePath);
   }
-  res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Demo CSV file not found' } });
+  try {
+    const { rows } = await query(
+      `SELECT roll_number, name, email, phone, department, degree_year, hostel, room_number, diet_pref, rfid_card_id, COALESCE(green_credits, 420) as green_credits
+         FROM users WHERE role IN ('STUDENT', 'STAFF') ORDER BY roll_number`
+    );
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const csv = XLSX.utils.sheet_to_csv(ws);
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="Presidency_University_Students_Demo_Data.csv"');
+    res.send(csv);
+  } catch (err) {
+    next(err);
+  }
 });
 
 // GET /campus/demo-data (JSON representation of university student demo records)

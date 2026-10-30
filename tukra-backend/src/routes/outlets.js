@@ -2,6 +2,7 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import * as XLSX from 'xlsx';
 import { query, toCamelCase } from '../db.js';
 import { auth } from '../middleware/auth.js';
 import { getFeasibleSlots } from '../services/slotService.js';
@@ -13,25 +14,58 @@ const dataDir = path.join(__dirname, '..', '..', 'data');
 const router = express.Router();
 
 // GET /outlets/export/canteen-excel
-router.get('/export/canteen-excel', (req, res) => {
+router.get('/export/canteen-excel', async (req, res, next) => {
   const filePath = path.join(dataDir, 'Presidency_University_Canteen_Demo_Data.xlsx');
   if (fs.existsSync(filePath)) {
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-Disposition', 'attachment; filename="Presidency_University_Canteen_Demo_Data.xlsx"');
     return res.sendFile(filePath);
   }
-  res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Canteen demo Excel file not found' } });
+  try {
+    const { rows } = await query(
+      `SELECT o.name as outlet_name, o.type, m.name as dish_name, m.price_paise / 100 as price_rupees,
+              m.is_veg, m.prep_seconds, m.is_available, m.description
+         FROM menu_items m
+         JOIN outlets o ON o.id = m.outlet_id
+        ORDER BY o.name, m.name`
+    );
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(rows);
+    XLSX.utils.book_append_sheet(wb, ws, 'Canteen_Catalog');
+    const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename="Presidency_University_Canteen_Demo_Data.xlsx"');
+    res.send(buf);
+  } catch (err) {
+    next(err);
+  }
 });
 
 // GET /outlets/export/canteen-csv
-router.get('/export/canteen-csv', (req, res) => {
+router.get('/export/canteen-csv', async (req, res, next) => {
   const filePath = path.join(dataDir, 'Presidency_University_Canteen_Demo_Data.csv');
   if (fs.existsSync(filePath)) {
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', 'attachment; filename="Presidency_University_Canteen_Demo_Data.csv"');
     return res.sendFile(filePath);
   }
-  res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Canteen demo CSV file not found' } });
+  try {
+    const { rows } = await query(
+      `SELECT o.name as outlet_name, o.type, m.name as dish_name, m.price_paise / 100 as price_rupees,
+              m.is_veg, m.prep_seconds, m.is_available, m.description
+         FROM menu_items m
+         JOIN outlets o ON o.id = m.outlet_id
+        ORDER BY o.name, m.name`
+    );
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const csv = XLSX.utils.sheet_to_csv(ws);
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="Presidency_University_Canteen_Demo_Data.csv"');
+    res.send(csv);
+  } catch (err) {
+    next(err);
+  }
 });
 
 // 15-second in-memory cache for outlets
