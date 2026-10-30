@@ -9,7 +9,9 @@ import com.xsparks.tukra.core.network.TokenStore
 import com.xsparks.tukra.core.network.UpdateOrderStatusRequest
 import com.xsparks.tukra.core.network.VerifyQrRequest
 import com.xsparks.tukra.core.network.VerifyQrResponse
+import com.xsparks.tukra.core.util.Resource
 import com.xsparks.tukra.core.util.VendorSoundAlert
+import com.xsparks.tukra.core.util.safeApiCall
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -177,13 +179,16 @@ class VendorQueueViewModel(
     }
 
     suspend fun verifyQrToken(token: String, context: Context): Result<VerifyQrResponse> {
-        return try {
-            val response = api.verifyOrderQr(VerifyQrRequest(token = token.trim()))
-            VendorSoundAlert.playSuccessBeep(context)
-            fetchOrders(context)
-            Result.success(response)
-        } catch (e: Exception) {
-            Result.failure(e)
+        return when (val res = safeApiCall { api.verifyOrderQr(VerifyQrRequest(token = token.trim())) }) {
+            is Resource.Success -> {
+                VendorSoundAlert.playSuccessBeep(context)
+                fetchOrders(context)
+                Result.success(res.data)
+            }
+            is Resource.Error -> {
+                Result.failure(Exception(res.message))
+            }
+            is Resource.Loading -> Result.failure(Exception("Verifying..."))
         }
     }
 

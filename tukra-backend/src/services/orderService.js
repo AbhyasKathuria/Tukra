@@ -401,35 +401,52 @@ export async function verifyQrToken(qrToken, vendorUserId) {
     await client.query('BEGIN');
 
     // Find vendor's outlet
+    let vendorOutletId = null;
+    let vendorOutletName = 'Canteen Stall';
     const outletRes = await client.query('SELECT id, name FROM outlets WHERE owner_user_id = $1 LIMIT 1', [vendorUserId]);
-    if (outletRes.rows.length === 0) {
-      throw new AppError('FORBIDDEN', 'No outlet found registered to this vendor', 403);
+    if (outletRes.rows.length > 0) {
+      vendorOutletId = outletRes.rows[0].id;
+      vendorOutletName = outletRes.rows[0].name;
+    } else {
+      // Allow ADMIN or VENDOR role without single-outlet constraint
+      const userRes = await client.query('SELECT role FROM users WHERE id = $1', [vendorUserId]);
+      if (userRes.rows.length === 0 || (userRes.rows[0].role !== 'ADMIN' && userRes.rows[0].role !== 'VENDOR')) {
+        throw new AppError('FORBIDDEN', 'No outlet found registered to this vendor', 403);
+      }
     }
-    const vendorOutletId = outletRes.rows[0].id;
 
+    const cleanToken = (qrToken || '').trim();
     const orderRes = await client.query(
-      `SELECT o.id, o.code, o.outlet_id, o.status, o.total_paise, o.user_id, u.name as student_name
+      `SELECT o.id, o.code, o.outlet_id, o.status, o.total_paise, o.user_id, u.name as student_name,
+              out.name as order_outlet_name
          FROM orders o
          JOIN users u ON u.id = o.user_id
-        WHERE o.qr_token = $1
+         JOIN outlets out ON out.id = o.outlet_id
+        WHERE o.qr_token = $1 OR o.code = $1 OR o.id::text = $1
         FOR UPDATE`,
-      [qrToken]
+      [cleanToken]
     );
 
     if (orderRes.rows.length === 0) {
-      throw new AppError('INVALID_QR', 'Invalid or unrecognised QR code', 409);
+      throw new AppError('INVALID_QR', 'Invalid or unrecognised QR code. Please scan a valid student pickup QR.', 409);
     }
 
     const order = orderRes.rows[0];
 
-    // Must belong to this vendor's outlet
-    if (order.outlet_id !== vendorOutletId) {
-      throw new AppError('INVALID_QR', 'Wrong outlet or already collected', 409);
+    // Check outlet match:
+    if (vendorOutletId && order.outlet_id !== vendorOutletId) {
+      if (!config.ENABLE_DEMO_PAY && process.env.NODE_ENV === 'production') {
+        throw new AppError('WRONG_OUTLET', `Order ${order.code} is for "${order.order_outlet_name}", not "${vendorOutletName}"`, 409);
+      }
     }
 
-    // Must be in READY state
-    if (order.status !== 'READY') {
-      throw new AppError('INVALID_QR', 'Wrong outlet or already collected', 409);
+    // Check status:
+    if (order.status === 'COLLECTED') {
+      throw new AppError('ALREADY_COLLECTED', `Order ${order.code} has already been collected (replay prevented)`, 409);
+    }
+
+    if (order.status === 'CANCELLED' || order.status === 'REJECTED') {
+      throw new AppError('ORDER_CANCELLED', `Order ${order.code} was ${order.status.toLowerCase()}`, 409);
     }
 
     // Mark as COLLECTED
