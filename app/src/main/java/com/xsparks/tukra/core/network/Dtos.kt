@@ -630,3 +630,83 @@ data class AdminSyncJobItem(
     val proposalCount: Int = 0,
     val errorMessage: String? = null
 )
+
+// --- TinyFish Autonomous Food Rescue & Location DTOs ---
+
+@Serializable
+data class DetectedLocationDto(
+    val campusName: String = "Presidency University",
+    val campusCode: String = "PU-BLR",
+    val zone: String = "Cauvery Hostel Block B (Yelahanka)",
+    val fullAddress: String = "Presidency University, Itgalpur, Rajanakunte, Yelahanka, Bengaluru, Karnataka 560064",
+    val latitude: Double = 13.1691,
+    val longitude: Double = 77.5358,
+    val pinCode: String = "560064",
+    val deliveryGates: List<DeliveryGateDto> = emptyList(),
+    val nearbyDeliveryHubs: List<String> = emptyList(),
+    val detectedVia: String = "Campus Geofence + Fused GPS Coordinates",
+    val status: String = "ACTIVE_ON_CAMPUS"
+)
+
+@Serializable
+data class DeliveryGateDto(
+    val id: String,
+    val name: String,
+    val isRecommended: Boolean = false
+)
+
+@Serializable
+data class FoodRescueRequest(
+    val dishQuery: String,
+    val foodDislikeReason: String? = null,
+    val location: LocationInputDto? = null
+)
+
+@Serializable
+data class LocationInputDto(
+    val campusName: String? = "Presidency University",
+    val zone: String? = "Cauvery Hostel Block B",
+    val latitude: Double? = 13.1691,
+    val longitude: Double? = 77.5358
+)
+
+@Serializable
+data class FoodComparisonItemDto(
+    val platform: String,
+    val restaurantName: String,
+    val dishName: String,
+    val priceRupees: Double,
+    val originalPriceRupees: Double = 0.0,
+    val couponApplied: String = "",
+    val deliveryTimeMinutes: Int = 25,
+    val rating: Double = 4.3,
+    val deepLink: String = "",
+    val isCheapest: Boolean = false
+)
+
+@Serializable
+data class CheapestOptionDto(
+    val platform: String,
+    val restaurant: String,
+    val dishTitle: String,
+    val priceRupees: Double,
+    val originalPriceRupees: Double = 0.0,
+    val couponApplied: String = "",
+    val deliveryMinutes: Int = 20,
+    val savingsRupees: Double = 0.0,
+    val dealNote: String = "",
+    val deepLink: String = ""
+)
+
+@Serializable
+data class FoodRescueResponse(
+    val success: Boolean = true,
+    val foodDislikeReason: String? = null,
+    val dishQuery: String,
+    val detectedLocation: DetectedLocationDto? = null,
+    val cheapestOption: CheapestOptionDto,
+    val comparisons: List<FoodComparisonItemDto> = emptyList(),
+    val agentTrace: List<String> = emptyList(),
+    val tinyfishEngine: String? = null,
+    val scrapedAt: String? = null
+)

@@ -202,4 +202,11 @@ interface TukraApi {
 
     @GET("admin/sync-jobs")
     suspend fun getAdminSyncJobs(): List<AdminSyncJobItem>
+
+    // --- TinyFish Autonomous Food Rescue & Location ---
+    @GET("tinyfish/detect-location")
+    suspend fun detectLocation(): DetectedLocationDto
+
+    @POST("tinyfish/food-rescue")
+    suspend fun foodRescue(@Body body: FoodRescueRequest): FoodRescueResponse
 }

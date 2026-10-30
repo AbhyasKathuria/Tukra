@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -70,7 +71,8 @@ import com.xsparks.tukra.core.util.toRupees
 fun TrackingScreen(
     orderId: String,
     viewModel: TrackingViewModel,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onFoodRescueClick: (dish: String) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var qrBitmap by remember { mutableStateOf<Bitmap?>(null) }
@@ -326,7 +328,42 @@ fun TrackingScreen(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    // TinyFish Food Rescue banner if food wasn't satisfactory
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Color(0xFF1E101D))
+                            .clickable {
+                                val firstDish = order.items.firstOrNull()?.name ?: "Meal"
+                                onFoodRescueClick(firstDish)
+                            }
+                            .padding(14.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("🐟 Didn't enjoy this meal?", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = Color(0xFFFFD166))
+                                Text("TinyFish will scrape Swiggy, Zomato & EatSure for cheaper alternatives", fontSize = 11.sp, color = Color.White.copy(alpha = 0.8f))
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(Color(0xFFFFD166))
+                                    .padding(horizontal = 10.dp, vertical = 6.dp)
+                            ) {
+                                Text("Rescue ➔", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(14.dp))
 
                     // Cancellation button
                     if (uiState.canCancel) {

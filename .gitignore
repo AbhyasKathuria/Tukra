@@ -1,6 +1,7 @@
 # Gradle / Android Studio
 *.iml
 .gradle
+.kotlin
 /local.properties
 local.properties
 /.idea/

@@ -78,7 +78,8 @@ import kotlinx.coroutines.delay
 fun HostelMessScreen(
     tokenStore: TokenStore,
     onBackClick: () -> Unit,
-    onTabSelected: (StudentNavTab) -> Unit
+    onTabSelected: (StudentNavTab) -> Unit,
+    onFoodRescueClick: (dish: String) -> Unit = {}
 ) {
     val api = remember { NetworkClient.getApi(tokenStore) }
     var dashboardData by remember { mutableStateOf<HostelDashboardDto?>(null) }
@@ -419,8 +420,81 @@ fun HostelMessScreen(
                                             Text(dish.description, fontSize = 10.sp, color = InkSoft)
                                         }
                                     }
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(6.dp))
+                                            .background(Color.White)
+                                            .clickable { onFoodRescueClick(dish.dishName) }
+                                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                                    ) {
+                                        Text("🐟 Swap", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Ink)
+                                    }
                                 }
                             }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                // TinyFish Food Rescue Banner for Mess
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(
+                            Brush.linearGradient(
+                                listOf(Color(0xFF1E101D), Color(0xFF42153B))
+                            )
+                        )
+                        .clickable { onFoodRescueClick("Paneer Butter Masala") }
+                        .padding(16.dp)
+                ) {
+                    Column {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "🐟 NOT FEELING THE MESS FOOD?",
+                                fontFamily = SoraFamily,
+                                fontWeight = FontWeight.ExtraBold,
+                                fontSize = 11.sp,
+                                color = Color(0xFFFFD166)
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(Color(0xFF06D6A0))
+                                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                            ) {
+                                Text("CHEAPEST DEALS", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "TinyFish scrapes Swiggy, Zomato & EatSure for you",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                        Text(
+                            text = "Finds lowest prices & student promo codes delivered right to Gate 2",
+                            fontSize = 11.sp,
+                            color = Color.White.copy(alpha = 0.75f)
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(Color(0xFFFFD166))
+                                .padding(vertical = 8.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("Rescue My Meal (Swiggy • Zomato • EatSure) ➔", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.Black)
                         }
                     }
                 }

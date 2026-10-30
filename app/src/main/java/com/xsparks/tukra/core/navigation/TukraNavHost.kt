@@ -39,6 +39,7 @@ import com.xsparks.tukra.feature.mess.MessMenuViewModel
 import com.xsparks.tukra.feature.mess.MessReservationsScreen
 import com.xsparks.tukra.feature.mess.MessReservationsViewModel
 import com.xsparks.tukra.feature.mess.HostelMessScreen
+import com.xsparks.tukra.feature.rescue.TinyFishFoodRescueScreen
 import com.xsparks.tukra.feature.onboarding.OnboardingScreen
 import com.xsparks.tukra.feature.profile.ProfileScreen
 import com.xsparks.tukra.feature.profile.ProfileViewModel
@@ -234,6 +235,9 @@ fun TukraNavHost(
                 },
                 onHostelMessClick = {
                     navController.navigate(Route.HostelMess)
+                },
+                onFoodRescueClick = { dish ->
+                    navController.navigate(Route.TinyFishFoodRescue(initialDish = dish))
                 }
             )
         }
@@ -294,6 +298,9 @@ fun TukraNavHost(
                     navController.navigate(Route.StudentHome) {
                         popUpTo<Route.StudentHome> { inclusive = true }
                     }
+                },
+                onFoodRescueClick = { dish ->
+                    navController.navigate(Route.TinyFishFoodRescue(initialDish = dish))
                 }
             )
         }
@@ -307,6 +314,9 @@ fun TukraNavHost(
                 },
                 onTabSelected = { tab ->
                     handleStudentTabSelection(tab)
+                },
+                onFoodRescueClick = { dish ->
+                    navController.navigate(Route.TinyFishFoodRescue(initialDish = dish))
                 }
             )
         }
@@ -350,7 +360,20 @@ fun TukraNavHost(
             HostelMessScreen(
                 tokenStore = tokenStore,
                 onBackClick = { navController.popBackStack() },
-                onTabSelected = { tab -> handleStudentTabSelection(tab) }
+                onTabSelected = { tab -> handleStudentTabSelection(tab) },
+                onFoodRescueClick = { dish ->
+                    navController.navigate(Route.TinyFishFoodRescue(initialDish = dish))
+                }
+            )
+        }
+
+        composable<Route.TinyFishFoodRescue> { backStackEntry ->
+            val route = backStackEntry.toRoute<Route.TinyFishFoodRescue>()
+            TinyFishFoodRescueScreen(
+                initialDish = route.initialDish,
+                initialReason = route.reason,
+                tokenStore = tokenStore,
+                onBackClick = { navController.popBackStack() }
             )
         }
 

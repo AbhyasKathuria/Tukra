@@ -14,6 +14,7 @@ import vendorRouter from './routes/vendor.js';
 import plateRouter from './routes/plate.js';
 import messRouter from './routes/mess.js';
 import adminRouter from './routes/admin.js';
+import tinyfishRouter from './routes/tinyfishRoutes.js';
 import { errorHandler } from './middleware/error.js';
 
 const app = express();
@@ -418,6 +419,7 @@ app.use('/vendor', vendorRouter);
 app.use('/plate', plateRouter);
 app.use('/mess', messRouter);
 app.use('/admin', adminRouter);
+app.use('/tinyfish', tinyfishRouter);
 
 // 404 Handler
 app.use((req, res) => {

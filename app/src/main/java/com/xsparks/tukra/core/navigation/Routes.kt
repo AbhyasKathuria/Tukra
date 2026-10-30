@@ -24,6 +24,7 @@ sealed interface Route {
     @Serializable data object ScanPlate : Route
     @Serializable data object Profile : Route
     @Serializable data object HostelMess : Route
+    @Serializable data class TinyFishFoodRescue(val initialDish: String = "Paneer Butter Masala", val reason: String? = null) : Route
 
     // Roles & Vendor Flow
     @Serializable data object VendorQueue : Route

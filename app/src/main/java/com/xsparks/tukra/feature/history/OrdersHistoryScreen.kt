@@ -69,7 +69,8 @@ fun OrdersHistoryScreen(
     tokenStore: TokenStore,
     viewModel: OrdersViewModel,
     onOrderClick: (orderId: String) -> Unit,
-    onTabSelected: (StudentNavTab) -> Unit
+    onTabSelected: (StudentNavTab) -> Unit,
+    onFoodRescueClick: (dish: String) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var selectedTabIndex by remember { mutableIntStateOf(0) }
@@ -222,7 +223,8 @@ fun OrdersHistoryScreen(
                     items(displayedOrders, key = { it.id }) { order ->
                         OrderHistoryCard(
                             order = order,
-                            onClick = { onOrderClick(order.id) }
+                            onClick = { onOrderClick(order.id) },
+                            onFoodRescueClick = onFoodRescueClick
                         )
                     }
                 }
@@ -234,7 +236,8 @@ fun OrdersHistoryScreen(
 @Composable
 fun OrderHistoryCard(
     order: OrderDto,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onFoodRescueClick: (dish: String) -> Unit = {}
 ) {
     val statusBg = when (order.status) {
         "READY" -> Success.copy(alpha = 0.15f)
@@ -325,6 +328,32 @@ fun OrderHistoryCard(
                     fontSize = 15.sp,
                     color = Ink
                 )
+            }
+
+            if (order.status == "COLLECTED") {
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(Color(0xFF1E101D))
+                            .clickable {
+                                val dish = order.items.firstOrNull()?.name ?: "Meal"
+                                onFoodRescueClick(dish)
+                            }
+                            .padding(horizontal = 10.dp, vertical = 5.dp)
+                    ) {
+                        Text(
+                            text = "🐟 Disliked? TinyFish Rescue",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFFFD166)
+                        )
+                    }
+                }
             }
         }
     }

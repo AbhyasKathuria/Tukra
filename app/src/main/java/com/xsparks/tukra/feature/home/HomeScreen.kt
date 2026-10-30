@@ -37,6 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -68,7 +69,8 @@ fun HomeScreen(
     onViewCartClick: () -> Unit,
     onTabSelected: (StudentNavTab) -> Unit,
     onWalletClick: () -> Unit,
-    onHostelMessClick: () -> Unit = {}
+    onHostelMessClick: () -> Unit = {},
+    onFoodRescueClick: (dish: String) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
@@ -116,11 +118,20 @@ fun HomeScreen(
                                 fontSize = 22.sp,
                                 color = Ink
                             )
-                            Text(
-                                text = uiState.campus?.name ?: "Presidency University",
-                                fontSize = 13.sp,
-                                color = InkSoft
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .clickable { onFoodRescueClick("Meal") }
+                                    .padding(vertical = 1.dp)
+                            ) {
+                                Text(
+                                    text = "📍 Cauvery Hostel Block B • Gate 2 (Auto)",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = Color(0xFF0F9D58)
+                                )
+                            }
                         }
 
                         // Wallet Pill
@@ -249,6 +260,70 @@ fun HomeScreen(
                                     .padding(horizontal = 12.dp, vertical = 8.dp)
                             ) {
                                 Text("OPEN QR ➔", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Dedicated TinyFish Autonomous Food Rescue Banner
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(
+                                Brush.linearGradient(
+                                    listOf(Color(0xFF1E101D), Color(0xFF42153B))
+                                )
+                            )
+                            .clickable { onFoodRescueClick("Paneer Butter Masala") }
+                            .padding(16.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        text = "🐟 TINYFISH FOOD RESCUE",
+                                        fontFamily = SoraFamily,
+                                        fontWeight = FontWeight.ExtraBold,
+                                        fontSize = 11.sp,
+                                        color = Color(0xFFFFD166)
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(4.dp))
+                                            .background(Color(0xFF06D6A0))
+                                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                                    ) {
+                                        Text("SWIGGY • ZOMATO • EATSURE", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "Didn't like today's food? Let TinyFish rescue it!",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White
+                                )
+                                Text(
+                                    text = "Auto-scrapes lowest prices & coupons delivered to Gate 2",
+                                    fontSize = 11.sp,
+                                    color = Color.White.copy(alpha = 0.75f)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(Color(0xFFFFD166))
+                                    .padding(horizontal = 10.dp, vertical = 8.dp)
+                            ) {
+                                Text("RESCUE ➔", fontSize = 11.sp, fontWeight = FontWeight.ExtraBold, color = Color.Black)
                             }
                         }
                     }
