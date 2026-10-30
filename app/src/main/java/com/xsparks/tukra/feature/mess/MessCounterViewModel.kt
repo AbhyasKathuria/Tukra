@@ -8,6 +8,8 @@ import com.xsparks.tukra.core.network.PlateAddItemRequest
 import com.xsparks.tukra.core.network.PlateOpenRequest
 import com.xsparks.tukra.core.network.PlateSessionDto
 import com.xsparks.tukra.core.network.TokenStore
+import com.xsparks.tukra.core.network.VerifyMessPassRequest
+import com.xsparks.tukra.core.network.VerifyMessPassResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -140,5 +142,23 @@ class MessCounterViewModel(
 
     fun clearFeedback() {
         _uiState.update { it.copy(errorMessage = null, actionSuccessMessage = null) }
+    }
+
+    suspend fun verifyMessPass(token: String): Result<VerifyMessPassResponse> {
+        return try {
+            val res = api.verifyMessPass(VerifyMessPassRequest(qrToken = token.trim()))
+            if (res.success) {
+                _uiState.update {
+                    it.copy(
+                        actionSuccessMessage = res.message
+                    )
+                }
+                Result.success(res)
+            } else {
+                Result.failure(Exception(res.message))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }

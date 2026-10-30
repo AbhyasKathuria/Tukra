@@ -79,6 +79,7 @@ fun MessCounterScreen(
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     var inputCode by remember { mutableStateOf("PLT-0001") }
+    var showScannerDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.errorMessage) {
         uiState.errorMessage?.let {
@@ -140,12 +141,25 @@ fun MessCounterScreen(
                         )
                     }
 
-                    if (uiState.activePlateSession != null) {
-                        OutlinedButton(
-                            onClick = { viewModel.nextStudent() },
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Button(
+                            onClick = { showScannerDialog = true },
+                            colors = ButtonDefaults.buttonColors(containerColor = TukraPink, contentColor = Ink),
                             shape = RoundedCornerShape(10.dp)
                         ) {
-                            Text("Next Student", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Ink)
+                            Icon(Icons.Outlined.QrCodeScanner, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Scan QR", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        }
+
+                        if (uiState.activePlateSession != null) {
+                            Spacer(modifier = Modifier.width(8.dp))
+                            OutlinedButton(
+                                onClick = { viewModel.nextStudent() },
+                                shape = RoundedCornerShape(10.dp)
+                            ) {
+                                Text("Next Student", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Ink)
+                            }
                         }
                     }
                 }
@@ -174,10 +188,53 @@ fun MessCounterScreen(
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "Scan the plate barcode or tap a demo plate number:",
+                            text = "Point camera at student entry pass or plate barcode:",
                             fontSize = 12.sp,
                             color = InkSoft
                         )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        Button(
+                            onClick = { showScannerDialog = true },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(52.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Blush, contentColor = Ink),
+                            shape = RoundedCornerShape(12.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.5.dp, TukraPink)
+                        ) {
+                            Icon(
+                                Icons.Outlined.QrCodeScanner,
+                                contentDescription = null,
+                                tint = PinkDeep,
+                                modifier = Modifier.size(22.dp)
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column {
+                                Text(
+                                    "📷 Open Camera QR Scanner",
+                                    fontFamily = SoraFamily,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.sp,
+                                    color = Ink
+                                )
+                                Text(
+                                    "Auto-verifies student pass or opens smart plate",
+                                    fontSize = 11.sp,
+                                    color = InkSoft
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(14.dp))
+                        Text(
+                            text = "Or tap demo plate number:",
+                            fontSize = 11.sp,
+                            color = InkSoft,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
 
                         Spacer(modifier = Modifier.height(12.dp))
 
@@ -298,6 +355,18 @@ fun MessCounterScreen(
                             ) {
                                 Text("Finish & Bill Plate (बिल बनाएं)", fontWeight = FontWeight.Bold, fontSize = 13.sp)
                             }
+
+                            Spacer(modifier = Modifier.height(6.dp))
+                            OutlinedButton(
+                                onClick = { showScannerDialog = true },
+                                colors = ButtonDefaults.outlinedButtonColors(contentColor = Ink),
+                                shape = RoundedCornerShape(10.dp),
+                                modifier = Modifier.fillMaxWidth().height(38.dp)
+                            ) {
+                                Icon(Icons.Outlined.QrCodeScanner, contentDescription = null, tint = PinkDeep, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text("Scan Student Pass or Another Plate", fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                            }
                         } else {
                             Spacer(modifier = Modifier.height(8.dp))
                             Box(
@@ -365,6 +434,20 @@ fun MessCounterScreen(
                     textAlign = androidx.compose.ui.text.style.TextAlign.Center
                 )
             }
+        }
+
+        if (showScannerDialog) {
+            MessVerifyQrDialog(
+                onDismiss = { showScannerDialog = false },
+                onVerifyToken = { token ->
+                    viewModel.verifyMessPass(token)
+                },
+                onPlateCodeDetected = { plateCode ->
+                    inputCode = plateCode
+                    viewModel.openSession(plateCode)
+                    showScannerDialog = false
+                }
+            )
         }
     }
 }

@@ -25,6 +25,7 @@ import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.People
+import androidx.compose.material.icons.outlined.QrCodeScanner
 import androidx.compose.material.icons.outlined.Restaurant
 import androidx.compose.material.icons.outlined.SoupKitchen
 import androidx.compose.material3.AlertDialog
@@ -73,7 +74,9 @@ import com.xsparks.tukra.core.designsystem.components.MessNavTab
 import com.xsparks.tukra.core.designsystem.components.VegNonVegMark
 import com.xsparks.tukra.core.network.MenuItemDto
 import com.xsparks.tukra.core.network.MessMenuItemDto
+import com.xsparks.tukra.core.network.NetworkClient
 import com.xsparks.tukra.core.network.TokenStore
+import com.xsparks.tukra.core.network.VerifyMessPassRequest
 import com.xsparks.tukra.core.util.toRupees
 import kotlinx.coroutines.launch
 
@@ -91,6 +94,7 @@ fun MessMenuScreen(
     var itemToEditQty by remember { mutableStateOf<MessMenuItemDto?>(null) }
     var newQtyInput by remember { mutableStateOf("") }
     var showPublishDialog by remember { mutableStateOf(false) }
+    var showScannerDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.errorMessage) {
         uiState.errorMessage?.let {
@@ -149,6 +153,18 @@ fun MessMenuScreen(
                     }
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
+                        OutlinedButton(
+                            onClick = { showScannerDialog = true },
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = Ink),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Icon(Icons.Outlined.QrCodeScanner, contentDescription = null, tint = PinkDeep, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Scan QR", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Ink)
+                        }
+
+                        Spacer(modifier = Modifier.width(8.dp))
+
                         Button(
                             onClick = { showPublishDialog = true },
                             colors = ButtonDefaults.buttonColors(containerColor = TukraPink, contentColor = Ink),
@@ -255,6 +271,29 @@ fun MessMenuScreen(
                 }
             }
         }
+    }
+
+    if (showScannerDialog) {
+        val api = remember { NetworkClient.getApi(tokenStore) }
+        MessVerifyQrDialog(
+            onDismiss = { showScannerDialog = false },
+            onVerifyToken = { token ->
+                try {
+                    val res = api.verifyMessPass(VerifyMessPassRequest(qrToken = token.trim()))
+                    if (res.success) {
+                        Result.success(res)
+                    } else {
+                        Result.failure(Exception(res.message))
+                    }
+                } catch (e: Exception) {
+                    Result.failure(e)
+                }
+            },
+            onPlateCodeDetected = {
+                showScannerDialog = false
+                onTabSelected(MessNavTab.COUNTER)
+            }
+        )
     }
 
     // Edit Planned Qty Dialog

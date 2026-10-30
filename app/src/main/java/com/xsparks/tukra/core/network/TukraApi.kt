@@ -190,6 +190,9 @@ interface TukraApi {
         @Query("date") date: String? = null
     ): DemandForecastResponse
 
+    @POST("mess/verify-pass")
+    suspend fun verifyMessPass(@Body body: VerifyMessPassRequest): VerifyMessPassResponse
+
     // --- Admin ---
     @GET("admin/overview")
     suspend fun getAdminOverview(): AdminOverviewResponse

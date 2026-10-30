@@ -472,6 +472,34 @@ data class HostelDashboardDto(
 )
 
 @Serializable
+data class VerifyMessPassRequest(
+    val qrToken: String
+)
+
+@Serializable
+data class VerifiedStudentDto(
+    val id: String = "",
+    val name: String = "Aarav Sharma",
+    val email: String = "aarav@presidency.ac.in",
+    val rollNumber: String = "20231CSE0491",
+    val hostel: String = "Cauvery Boys Hostel (Block B)",
+    val roomNumber: String = "B-204",
+    val dietPref: String = "VEG"
+)
+
+@Serializable
+data class VerifyMessPassResponse(
+    val success: Boolean = true,
+    val status: String = "APPROVED",
+    val message: String = "Entry Approved",
+    val student: VerifiedStudentDto? = null,
+    val meal: String = "LUNCH",
+    val isPlateCode: Boolean = false,
+    val plateCode: String? = null,
+    val timestamp: String = ""
+)
+
+@Serializable
 data class CampusDemoDataResponse(
     val campus: String = "Presidency University, Bengaluru",
     val totalRecords: Int = 0,
