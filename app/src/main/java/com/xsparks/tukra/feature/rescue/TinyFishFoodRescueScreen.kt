@@ -76,9 +76,15 @@ import com.xsparks.tukra.core.designsystem.OutlineWarm
 import com.xsparks.tukra.core.designsystem.SoraFamily
 import com.xsparks.tukra.core.designsystem.TukraPink
 import com.xsparks.tukra.core.designsystem.components.PrimaryButton
+import com.xsparks.tukra.core.designsystem.components.TinyFishBadge
+import com.xsparks.tukra.core.designsystem.components.TinyFishInfoBottomSheet
+import com.xsparks.tukra.core.designsystem.components.TinyFishLiveProgress
+import com.xsparks.tukra.core.designsystem.components.SourceProgressItem
 import com.xsparks.tukra.core.network.FoodComparisonItemDto
 import com.xsparks.tukra.core.network.TokenStore
+import androidx.compose.material3.ExperimentalMaterial3Api
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TinyFishFoodRescueScreen(
     initialDish: String = "Paneer Butter Masala",
@@ -91,6 +97,7 @@ fun TinyFishFoodRescueScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     var showAgentTrace by remember { mutableStateOf(false) }
+    var showInfoSheet by remember { mutableStateOf(false) }
 
     LaunchedEffect(initialDish, initialReason) {
         viewModel.init(initialDish, initialReason)
@@ -146,6 +153,11 @@ fun TinyFishFoodRescueScreen(
                             color = Color.White.copy(alpha = 0.7f)
                         )
                     }
+                    TinyFishBadge(
+                        text = "Safety Info",
+                        showInfoIcon = true,
+                        onClick = { showInfoSheet = true }
+                    )
                 }
             }
         },
@@ -408,8 +420,21 @@ fun TinyFishFoodRescueScreen(
                 }
             }
 
-            // Scraping Agent Pipeline Visualizer
+            // Scraping Agent Pipeline Visualizer & Live Agent Progress
             if (uiState.isLoading || uiState.agentSteps.isNotEmpty()) {
+                item {
+                    val sources = listOf(
+                        SourceProgressItem("Swiggy Live Agent", if (uiState.isLoading) "READING" else "DONE", "Parallel scraping run"),
+                        SourceProgressItem("Zomato Live Agent", if (uiState.isLoading) "READING" else "DONE", "Coupons & delivery fee checks"),
+                        SourceProgressItem("EatSure Live Agent", if (uiState.isLoading) "READING" else "DONE", "Direct cloud kitchen pricing")
+                    )
+                    TinyFishLiveProgress(
+                        sources = sources,
+                        streamingUrl = null,
+                        isStreaming = uiState.isLoading
+                    )
+                }
+
                 item {
                     Box(
                         modifier = Modifier
@@ -724,6 +749,13 @@ fun TinyFishFoodRescueScreen(
                     }
                 }
             }
+        }
+
+        if (showInfoSheet) {
+            TinyFishInfoBottomSheet(
+                onDismissRequest = { showInfoSheet = false },
+                screenName = "Dislike Rescue"
+            )
         }
     }
 }

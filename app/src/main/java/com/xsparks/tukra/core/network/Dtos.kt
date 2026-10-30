@@ -710,3 +710,160 @@ data class FoodRescueResponse(
     val tinyfishEngine: String? = null,
     val scrapedAt: String? = null
 )
+
+// --- TinyFish Agent Console & Shared Layer DTOs ---
+
+@Serializable
+data class AgentJobDto(
+    val id: String,
+    val kind: String,
+    val status: String,
+    val streamingUrl: String? = null,
+    val tinyfishRunId: String? = null,
+    val durationMs: Long = 0,
+    val fromCache: Boolean = false,
+    val cacheKey: String? = null,
+    val startedAt: String? = null,
+    val finishedAt: String? = null,
+    val error: String? = null
+)
+
+@Serializable
+data class AgentJobKindCount(
+    val kind: String,
+    val count: Int = 0,
+    val successful: Int = 0,
+    val fromCache: Int = 0,
+    val avgDurationMs: Int = 0
+)
+
+@Serializable
+data class AgentStatsDto(
+    val totalRunsToday: Int = 0,
+    val successRatePercent: Int = 100,
+    val dailyCap: Int = 100,
+    val runsPerKind: List<AgentJobKindCount> = emptyList(),
+    val activeAgents: List<String> = emptyList()
+)
+
+@Serializable
+data class AgentConsoleResponse(
+    val stats: AgentStatsDto = AgentStatsDto(),
+    val jobs: List<AgentJobDto> = emptyList()
+)
+
+@Serializable
+data class TinyFishUsageItemDto(
+    val where: String,
+    val who: String,
+    val what: String,
+    val why: String,
+    val guardrails: String,
+    val endpoint: String? = null,
+    val status: String = "BUILT"
+)
+
+@Serializable
+data class BoundaryRulesDto(
+    val usedFor: List<String> = emptyList(),
+    val neverUsedFor: List<String> = emptyList()
+)
+
+@Serializable
+data class TinyFishUsageResponse(
+    val project: String = "Tukra Campus Food Operating System",
+    val agentEngine: String = "TinyFish Multi-Platform Autonomous Agent Layer",
+    val purpose: String = "",
+    val boundaryRules: BoundaryRulesDto = BoundaryRulesDto(),
+    val usageMap: List<TinyFishUsageItemDto> = emptyList()
+)
+
+@Serializable
+data class DishDoctorBenchmarkDto(
+    val medianPriceRupees: Double = 140.0,
+    val lowestPriceRupees: Double = 109.0,
+    val competitorBest: String = "",
+    val competitorAlternative: String = ""
+)
+
+@Serializable
+data class DishDoctorCardDto(
+    val dishName: String,
+    val dislikeCount: Int,
+    val reportedReasons: List<String> = emptyList(),
+    val campusPricePaise: Int = 8000,
+    val campusPriceRupees: Double = 80.0,
+    val marketBenchmark: DishDoctorBenchmarkDto? = null,
+    val recommendedAction: String = "MONITOR_RECIPE",
+    val actionLabel: String = ""
+)
+
+@Serializable
+data class DishDoctorResponse(
+    val weekStarting: String = "",
+    val totalDislikesThisWeek: Int = 0,
+    val topDislikedDishes: List<DishDoctorCardDto> = emptyList(),
+    val poweredBy: String = "TinyFish Dish Doctor"
+)
+
+@Serializable
+data class NearbyRestaurantDto(
+    val name: String,
+    val cuisine: String,
+    val distanceKm: Double,
+    val rating: Double,
+    val sampleDishes: List<String> = emptyList(),
+    val averagePriceRupees: Double = 120.0,
+    val address: String = ""
+)
+
+@Serializable
+data class NearbyDiscoverRequest(
+    val lat: Double = 13.169,
+    val lng: Double = 77.536,
+    val area: String = "Rajanakunte / Yelahanka",
+    val city: String = "Bengaluru",
+    val cuisine: String? = null
+)
+
+@Serializable
+data class NearbyDiscoverResponse(
+    val success: Boolean = true,
+    val area: String,
+    val coordinates: String,
+    val cuisineFilter: String = "All",
+    val fromCache: Boolean = false,
+    val cachedForMinutes: Int = 60,
+    val restaurants: List<NearbyRestaurantDto> = emptyList(),
+    val poweredBy: String = "TinyFish Autonomous Discovery Agent"
+)
+
+@Serializable
+data class PriceBenchmarkRequest(
+    val menuItemId: String? = null,
+    val dishName: String? = null,
+    val area: String? = null
+)
+
+@Serializable
+data class PriceBenchmarkResponse(
+    val success: Boolean = true,
+    val dishName: String,
+    val area: String,
+    val fromCache: Boolean = false,
+    val poweredBy: String = "TinyFish Market Price Benchmark Agent"
+)
+
+@Serializable
+data class VendorAutofillRequest(
+    val url: String
+)
+
+@Serializable
+data class VendorAutofillResponse(
+    val success: Boolean = true,
+    val jobId: String? = null,
+    val fromCache: Boolean = false,
+    val reviewNotice: String = "",
+    val poweredBy: String = "TinyFish Autonomous Onboarding Agent"
+)

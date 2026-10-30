@@ -209,4 +209,25 @@ interface TukraApi {
 
     @POST("tinyfish/food-rescue")
     suspend fun foodRescue(@Body body: FoodRescueRequest): FoodRescueResponse
+
+    @POST("feedback/dislike")
+    suspend fun feedbackDislike(@Body body: FoodRescueRequest): FoodRescueResponse
+
+    @GET("meta/tinyfish-usage")
+    suspend fun getTinyFishUsage(): TinyFishUsageResponse
+
+    @GET("admin/agent-jobs")
+    suspend fun getAdminAgentJobs(): AgentConsoleResponse
+
+    @GET("admin/dish-doctor")
+    suspend fun getDishDoctor(): DishDoctorResponse
+
+    @POST("discover")
+    suspend fun discoverNearby(@Body body: NearbyDiscoverRequest): NearbyDiscoverResponse
+
+    @POST("vendor/benchmark")
+    suspend fun benchmarkPrice(@Body body: PriceBenchmarkRequest): PriceBenchmarkResponse
+
+    @POST("vendor/onboard/autofill")
+    suspend fun vendorAutofill(@Body body: VendorAutofillRequest): VendorAutofillResponse
 }

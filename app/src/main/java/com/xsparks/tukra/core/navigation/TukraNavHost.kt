@@ -40,6 +40,8 @@ import com.xsparks.tukra.feature.mess.MessReservationsScreen
 import com.xsparks.tukra.feature.mess.MessReservationsViewModel
 import com.xsparks.tukra.feature.mess.HostelMessScreen
 import com.xsparks.tukra.feature.rescue.TinyFishFoodRescueScreen
+import com.xsparks.tukra.feature.agent.AgentConsoleScreen
+import com.xsparks.tukra.feature.agent.AboutTinyFishScreen
 import com.xsparks.tukra.feature.onboarding.OnboardingScreen
 import com.xsparks.tukra.feature.profile.ProfileScreen
 import com.xsparks.tukra.feature.profile.ProfileViewModel
@@ -352,6 +354,12 @@ fun TukraNavHost(
                 },
                 onTabSelected = { tab ->
                     handleStudentTabSelection(tab)
+                },
+                onViewAgentConsole = {
+                    navController.navigate(Route.AgentConsole)
+                },
+                onViewAboutTinyFish = {
+                    navController.navigate(Route.AboutTinyFish)
                 }
             )
         }
@@ -457,6 +465,12 @@ fun TukraNavHost(
                     navController.navigate(Route.Login) {
                         popUpTo(0) { inclusive = true }
                     }
+                },
+                onViewAgentConsole = {
+                    navController.navigate(Route.AgentConsole)
+                },
+                onViewAboutTinyFish = {
+                    navController.navigate(Route.AboutTinyFish)
                 }
             )
         }
@@ -482,6 +496,21 @@ fun TukraNavHost(
                 tokenStore = tokenStore,
                 viewModel = adminViewModel,
                 onTabSelected = { handleAdminTabSelection(it) }
+            )
+        }
+
+        composable<Route.AgentConsole> {
+            AgentConsoleScreen(
+                tokenStore = tokenStore,
+                onBackClick = { navController.popBackStack() },
+                onViewAboutClick = { navController.navigate(Route.AboutTinyFish) }
+            )
+        }
+
+        composable<Route.AboutTinyFish> {
+            AboutTinyFishScreen(
+                tokenStore = tokenStore,
+                onBackClick = { navController.popBackStack() }
             )
         }
     }

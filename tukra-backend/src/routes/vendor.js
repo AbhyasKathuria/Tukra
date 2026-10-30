@@ -7,6 +7,7 @@ import { AppError } from '../middleware/error.js';
 import { updateOrderStatus, verifyQrToken } from '../services/orderService.js';
 import { runTinyFishSync } from '../services/tinyfish.js';
 import { diffMenu } from '../services/menuDiff.js';
+import { runAgentJob } from '../services/agentJobService.js';
 
 const router = express.Router();
 
@@ -690,6 +691,101 @@ router.post('/menu/swap-exchange', auth(['VENDOR', 'ADMIN']), async (req, res, n
     next(err);
   } finally {
     client.release();
+  }
+});
+
+// POST /vendor/onboard/autofill (Part 2.A: Vendor onboarding autofill)
+router.post('/onboard/autofill', auth(['VENDOR', 'ADMIN']), async (req, res, next) => {
+  try {
+    const { url } = req.body;
+    if (!url) {
+      throw new AppError('VALIDATION_FAILED', 'Public outlet page URL is required', 400);
+    }
+
+    const job = await runAgentJob({
+      kind: 'VENDOR_ONBOARD',
+      url,
+      goal: 'Read this public outlet page. Extract the outlet name, physical address, opening hours, and all menu items (name, price in rupees as number, category heading, and whether it is vegetarian). Do not click any order, pay, or login buttons.',
+      schema: {
+        type: 'object',
+        properties: {
+          outlet_name: { type: 'string' },
+          address: { type: 'string' },
+          opening_hours: { type: 'string' },
+          items: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+                price_rupees: { type: 'number' },
+                category: { type: 'string' },
+                is_veg: { type: 'boolean' }
+              },
+              required: ['name', 'price_rupees']
+            }
+          }
+        },
+        required: ['outlet_name', 'items']
+      },
+      input: { url },
+      userId: req.user.id,
+      role: req.user.role,
+      cacheKey: `onboard:${url.trim().toLowerCase()}`,
+      ttlMinutes: 60
+    });
+
+    res.json({
+      success: true,
+      jobId: job.id,
+      fromCache: job.fromCache,
+      autofillData: job.result,
+      reviewNotice: 'Vendor must review and edit all extracted details and prices before saving to the live campus catalog.',
+      poweredBy: 'TinyFish Autonomous Onboarding Agent'
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /vendor/benchmark (Part 2.F: Vendor price benchmark)
+router.post('/benchmark', auth(['VENDOR', 'ADMIN']), async (req, res, next) => {
+  try {
+    const { menuItemId, dishName, area } = req.body;
+    let targetDish = dishName;
+
+    if (menuItemId && !targetDish) {
+      const itemRes = await query('SELECT name FROM menu_items WHERE id = $1', [menuItemId]);
+      if (itemRes.rows.length > 0) {
+        targetDish = itemRes.rows[0].name;
+      }
+    }
+
+    if (!targetDish) {
+      targetDish = 'Paneer Butter Masala';
+    }
+
+    const targetArea = area || 'Presidency University / Yelahanka';
+    const cacheKey = `benchmark:${targetDish.toLowerCase().trim()}:${targetArea.toLowerCase().trim()}`;
+
+    const job = await runAgentJob({
+      kind: 'PRICE_BENCHMARK',
+      goal: `Search external delivery platforms and restaurant menus in ${targetArea} for '${targetDish}'. Calculate the median, lowest and highest price in rupees, and extract top competitor prices.`,
+      input: { dishName: targetDish, area: targetArea },
+      cacheKey,
+      ttlMinutes: 60
+    });
+
+    res.json({
+      success: true,
+      dishName: targetDish,
+      area: targetArea,
+      benchmark: job.result,
+      fromCache: job.fromCache,
+      poweredBy: 'TinyFish Market Price Benchmark Agent'
+    });
+  } catch (err) {
+    next(err);
   }
 });
 

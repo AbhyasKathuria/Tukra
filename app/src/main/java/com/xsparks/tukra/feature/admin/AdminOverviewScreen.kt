@@ -2,6 +2,7 @@ package com.xsparks.tukra.feature.admin
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -72,7 +73,9 @@ fun AdminOverviewScreen(
     tokenStore: TokenStore,
     viewModel: AdminViewModel,
     onTabSelected: (AdminNavTab) -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onViewAgentConsole: () -> Unit = {},
+    onViewAboutTinyFish: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val scope = rememberCoroutineScope()
@@ -169,6 +172,80 @@ fun AdminOverviewScreen(
                         .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
+                    // TinyFish Agent Console Banner for Admin
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(Color(0xFF1E101D))
+                            .padding(16.dp)
+                    ) {
+                        Column {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text("🐟", fontSize = 16.sp)
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = "TINYFISH AGENT LAYER",
+                                        fontFamily = SoraFamily,
+                                        fontWeight = FontWeight.ExtraBold,
+                                        fontSize = 11.sp,
+                                        color = Color(0xFFFFD166)
+                                    )
+                                }
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .background(Color(0xFF06D6A0))
+                                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                                ) {
+                                    Text("LIVE AGENT MONITOR", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = "Autonomous Menu Sync & Food Rescue Agent Runs",
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                            Text(
+                                text = "Tracks live stream runs, duration, 30-min credit caching & error handling",
+                                fontSize = 11.sp,
+                                color = Color.White.copy(alpha = 0.75f)
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(Color(0xFFFFD166))
+                                        .clickable { onViewAgentConsole() }
+                                        .padding(vertical = 8.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text("⚡ Open Console", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                                }
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(Color.White.copy(alpha = 0.15f))
+                                        .clickable { onViewAboutTinyFish() }
+                                        .padding(vertical = 8.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text("ℹ️ Usage Map", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                                }
+                            }
+                        }
+                    }
+
                     // 4 KPI Cards Grid
                     Row(
                         modifier = Modifier.fillMaxWidth(),

@@ -92,7 +92,9 @@ fun ProfileScreen(
     tokenStore: TokenStore,
     viewModel: ProfileViewModel,
     onLogout: () -> Unit,
-    onTabSelected: (StudentNavTab) -> Unit
+    onTabSelected: (StudentNavTab) -> Unit,
+    onViewAgentConsole: () -> Unit = {},
+    onViewAboutTinyFish: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val scope = rememberCoroutineScope()
@@ -631,6 +633,44 @@ fun ProfileScreen(
                     }
 
                     HorizontalDivider(color = OutlineWarm.copy(alpha = 0.5f), modifier = Modifier.padding(vertical = 10.dp))
+
+                    // TinyFish About & Usage Map
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable { onViewAboutTinyFish() }
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("🐟", fontSize = 18.sp)
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("About TinyFish in Tukra", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Ink)
+                            Text("8 Outside Web Integrations & Guardrails (for Judges)", fontSize = 11.sp, color = InkSoft)
+                        }
+                    }
+
+                    HorizontalDivider(color = OutlineWarm.copy(alpha = 0.5f))
+
+                    // TinyFish Agent Console
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable { onViewAgentConsole() }
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("⚡", fontSize = 18.sp)
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("TinyFish Agent Console", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Ink)
+                            Text("Live job monitor, status, duration & watch live stream", fontSize = 11.sp, color = InkSoft)
+                        }
+                    }
+
+                    HorizontalDivider(color = OutlineWarm.copy(alpha = 0.5f))
 
                     // Privacy Policy link
                     Row(

@@ -42,4 +42,6 @@ sealed interface Route {
     @Serializable data object AdminOutlets : Route
     @Serializable data object AdminAnalytics : Route
     @Serializable data object AdminSync : Route
+    @Serializable data object AgentConsole : Route
+    @Serializable data object AboutTinyFish : Route
 }

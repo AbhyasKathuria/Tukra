@@ -56,6 +56,28 @@ export function initCronJobs() {
     { timezone }
   );
 
+  // 4. Nightly Menu Freshness Guard at 02:00 IST (Part 2.C)
+  cron.schedule(
+    '0 2 * * *',
+    async () => {
+      try {
+        console.log('🐟 [CRON 02:00 IST] Running TinyFish Nightly Menu Freshness Guard...');
+        // Runs freshness audit and stores results in agent_jobs
+        const { runAgentJob } = await import('../services/agentJobService.js');
+        await runAgentJob({
+          kind: 'FRESHNESS_GUARD',
+          goal: 'Nightly scan of campus outlet menus for stale pricing, sold-out surges, and price mismatches over 20%.',
+          input: { scheduledTime: '02:00 IST' },
+          ttlMinutes: 360
+        });
+        console.log('✅ [CRON] Nightly Menu Freshness Guard audit completed.');
+      } catch (err) {
+        console.error('❌ [CRON ERROR] Menu freshness guard failed:', err.message);
+      }
+    },
+    { timezone }
+  );
+
   console.log('🕒 [CRON] Background scheduled jobs initialized (Asia/Kolkata).');
 }
 
